@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "target": "ES6",
+    "module": "commonjs",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "declaration": true, // Add this line
+    "declarationMap": true // Generate source maps for declaration files (optional for debugging)
+  },
+  "include": ["src/**/*"]
+}

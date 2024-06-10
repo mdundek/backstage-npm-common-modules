@@ -1,0 +1,23 @@
+{
+  "name": "backstage-neotek-modules",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^20.14.2",
+    "typescript": "^5.4.5"
+  },
+  "dependencies": {
+    "js-yaml": "^4.1.0",
+    "short-unique-id": "^5.2.0"
+  },
+  "publishConfig":{"registry":"https://artifactory.ea.com/artifactory/api/npm/captech-npm-fed/"}
+}
