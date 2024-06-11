@@ -19,10 +19,11 @@ declare class AxionController {
      *
      * @param clusterEntity
      * @param dnsEntity
+     * @param gcpProjectId
      * @param ctx
      * @returns
      */
-    computeArgumentsFile(clusterEntity: any, dnsEntity: any, ctx: any): any;
+    computeArgumentsFile(clusterEntity: any, dnsEntity: any, gcpProjectId: string, ctx: any): any;
     /**
      *
      * @param workflow

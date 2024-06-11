@@ -108,10 +108,11 @@ class AxionController {
      *
      * @param clusterEntity
      * @param dnsEntity
+     * @param gcpProjectId
      * @param ctx
      * @returns
      */
-    computeArgumentsFile(clusterEntity, dnsEntity, ctx) {
+    computeArgumentsFile(clusterEntity, dnsEntity, gcpProjectId, ctx) {
         // Prepare the Argo Workflow arguments for the Axion installation
         const manageSecretsWithVault = ctx.input.installExternalSecrets ? ctx.input.manageAxionSecretsWithVault : false;
         const rootDomain = dnsEntity.spec.isDnsSubdomain ? `${dnsEntity.spec.subdomain}.${dnsEntity.spec.domain}` : dnsEntity.spec.domain;
@@ -119,7 +120,7 @@ class AxionController {
             "axionSystemNamespace": "axion-system",
             "clusterRootDomain": rootDomain,
             "setupSecretName": "temporary-axion-credentials",
-            "gcpProjectId": "captech-msi-gcp-dev", // TODO: Get this from the user input
+            "gcpProjectId": gcpProjectId,
             "axionOciRepo": `${clusterEntity.spec.data.ociRepo}/captech-msi/core/axion/mdundek/dev`,
             "axionOciRepoAuth": true,
             "manageSecretsWithVault": manageSecretsWithVault,
@@ -148,7 +149,7 @@ class AxionController {
             "createRootDomainAxionClusterIssuer": ctx.input.installCertManager,
             "certManagerEaDnsNameserver": "10.12.238.27:53",
             "certManagerValues": "installCRDs: true\nenableCertificateOwnerRef: true",
-            "externalDnsValues": "provider: google\ngoogle:\n  project: captech-msi-gcp-dev\nsources:\n  - istio-gateway", // TODO: Get the project from the user input
+            "externalDnsValues": `provider: google\ngoogle:\n  project: ${gcpProjectId}\nsources:\n  - istio-gateway`,
             "istiodValues": "meshConfig:\n  enableAutoMtls: true\n  rootNamespace: istio-system\nconfigMapEnabled: true \nrevision: pilot",
             "istioGatewayValues": "revision: \"pilot\"\nservice:\n  annotations:\n    cloud.google.com/load-balancer-type: \"Internal\"",
             "argoCdValues": "configs:\n  params:\n    server.insecure: true\nserver:\n  certificate:\n    enabled: false",
