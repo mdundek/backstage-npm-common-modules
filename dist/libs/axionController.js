@@ -114,9 +114,10 @@ class AxionController {
     computeArgumentsFile(clusterEntity, dnsEntity, ctx) {
         // Prepare the Argo Workflow arguments for the Axion installation
         const manageSecretsWithVault = ctx.input.installExternalSecrets ? ctx.input.manageAxionSecretsWithVault : false;
+        const rootDomain = dnsEntity.spec.isDnsSubdomain ? `${dnsEntity.spec.subdomain}.${dnsEntity.spec.domain}` : dnsEntity.spec.domain;
         const args = {
             "axionSystemNamespace": "axion-system",
-            "clusterRootDomain": dnsEntity.spec.isDnsSubdomain ? `${dnsEntity.spec.subdomain}.${dnsEntity.spec.domain}` : dnsEntity.spec.domain,
+            "clusterRootDomain": rootDomain,
             "setupSecretName": "temporary-axion-credentials",
             "gcpProjectId": "captech-msi-gcp-dev", // TODO: Get this from the user input
             "axionOciRepo": `${clusterEntity.spec.data.ociRepo}/captech-msi/core/axion/mdundek/dev`,
@@ -150,6 +151,7 @@ class AxionController {
             "externalDnsValues": "provider: google\ngoogle:\n  project: captech-msi-gcp-dev\nsources:\n  - istio-gateway", // TODO: Get the project from the user input
             "istiodValues": "meshConfig:\n  enableAutoMtls: true\n  rootNamespace: istio-system\nconfigMapEnabled: true \nrevision: pilot",
             "istioGatewayValues": "revision: \"pilot\"\nservice:\n  annotations:\n    cloud.google.com/load-balancer-type: \"Internal\"",
+            "argoCdValues": "configs:\n  params:\n    server.insecure: true\nserver:\n  certificate:\n    enabled: false",
             "createBackstageCatalogEntry": "true",
         };
         return args;
