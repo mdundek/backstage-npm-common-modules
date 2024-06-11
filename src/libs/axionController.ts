@@ -117,7 +117,7 @@ class AxionController {
             "externalDnsValues": "provider: google\ngoogle:\n  project: captech-msi-gcp-dev\nsources:\n  - istio-gateway", // TODO: Get the project from the user input
             "istiodValues": "meshConfig:\n  enableAutoMtls: true\n  rootNamespace: istio-system\nconfigMapEnabled: true \nrevision: pilot",
             "istioGatewayValues": "revision: \"pilot\"\nservice:\n  annotations:\n    cloud.google.com/load-balancer-type: \"Internal\"",
-            "argoCdValues": `global:\n  domain: argocd.${rootDomain}\nconfigs:\n  params:\n    server.insecure: true`,
+            "argoCdValues": "configs:\n  params:\n    server.insecure: true\nserver:\n  certificate:\n    enabled: false",
             "createBackstageCatalogEntry": "true",
         };
         return args
