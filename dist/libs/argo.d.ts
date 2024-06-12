@@ -20,7 +20,7 @@ declare class ArgoClient {
      * @param workflowFilePath
      * @param workflowName
      */
-    runWorkflow(logger: any, workflowFilePath: string, workflowName: string): Promise<any>;
+    runWorkflow(logger: any, workflowFilePath: string, workflowName: string, proxied?: boolean): Promise<any>;
     /**
      *
      * @param workflowName

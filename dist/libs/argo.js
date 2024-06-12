@@ -72,7 +72,7 @@ class ArgoClient {
      * @param workflowFilePath
      * @param workflowName
      */
-    runWorkflow(logger, workflowFilePath, workflowName) {
+    runWorkflow(logger, workflowFilePath, workflowName, proxied) {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
                 const KUBE_API_SERVER = this.KUBE_API_SERVER;
@@ -94,7 +94,8 @@ class ArgoClient {
                     "--token",
                     SA_TOKEN,
                     "-n", "argo",
-                    "--insecure-skip-tls-verify"
+                    "--insecure-skip-tls-verify",
+                    "--request-timeout", "30m"
                 ]);
                 const allLogs = [];
                 let logTimeout;
@@ -110,8 +111,10 @@ class ArgoClient {
                 const pattern2 = /.+\s=>\s.+/;
                 childProcess.stdout.on('data', (data) => {
                     const strippedData = data.toString().replace(/\x1b\[[0-9;]*m/g, '');
-                    allLogs.push(strippedData);
                     strippedData.split("\n").forEach((line) => {
+                        if (proxied)
+                            line = line.substring(line.indexOf(":") + 1);
+                        allLogs.push(line);
                         if (pattern1.test(line)) {
                             logger.info("");
                             logger.info(` ${line.substring(line.indexOf(":") + 1, line.length).trim()}`);
@@ -125,8 +128,10 @@ class ArgoClient {
                 });
                 childProcess.stderr.on('data', (data) => {
                     const strippedData = data.toString().replace(/\x1b\[[0-9;]*m/g, '');
-                    allLogs.push(strippedData);
                     strippedData.split("\n").forEach((line) => {
+                        if (proxied)
+                            line = line.substring(line.indexOf(":") + 1);
+                        allLogs.push(line);
                         logger.error(line);
                         resetLogTimeout();
                     });

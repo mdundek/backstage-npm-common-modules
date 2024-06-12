@@ -45,7 +45,7 @@ class ArgoClient {
      * @param workflowFilePath 
      * @param workflowName 
      */
-    public async runWorkflow(logger: any, workflowFilePath: string, workflowName: string): Promise<any> {
+    public async runWorkflow(logger: any, workflowFilePath: string, workflowName: string, proxied?: boolean): Promise<any> {
         return new Promise<void>((resolve, reject) => {
             const KUBE_API_SERVER = this.KUBE_API_SERVER;
             if (!KUBE_API_SERVER) {
@@ -67,7 +67,8 @@ class ArgoClient {
                 "--token",
                 SA_TOKEN,
                 "-n", "argo",
-                "--insecure-skip-tls-verify"
+                "--insecure-skip-tls-verify",
+                "--request-timeout", "30m"
             ]);
 
             const allLogs: string[] = [];
@@ -86,8 +87,10 @@ class ArgoClient {
             const pattern2 = /.+\s=>\s.+/;
             childProcess.stdout.on('data', (data:any) => {
                 const strippedData = data.toString().replace(/\x1b\[[0-9;]*m/g, '');
-                allLogs.push(strippedData);
                 strippedData.split("\n").forEach((line: string) => {
+                    if(proxied)
+                        line = line.substring(line.indexOf(":")+1)
+                    allLogs.push(line);
                     if (pattern1.test(line)) {
                         logger.info("")
                         logger.info(` ${line.substring(line.indexOf(":")+1, line.length).trim()}`);
@@ -102,8 +105,10 @@ class ArgoClient {
     
             childProcess.stderr.on('data', (data:any) => {
                 const strippedData = data.toString().replace(/\x1b\[[0-9;]*m/g, '');
-                allLogs.push(strippedData);
                 strippedData.split("\n").forEach((line: string) => {
+                    if(proxied)
+                        line = line.substring(line.indexOf(":")+1)
+                    allLogs.push(line);
                     logger.error(line);
                     resetLogTimeout();
                 });
