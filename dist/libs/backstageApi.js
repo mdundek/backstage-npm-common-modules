@@ -64,7 +64,7 @@ exports.backstageApi = {
             throw new Error(`Failed to fetch file from GitLab: ${response.statusText}`);
         }
     }),
-    addNewLocation: (url, token) => __awaiter(void 0, void 0, void 0, function* () {
+    addNewLocation: (catalogYamlPath, token) => __awaiter(void 0, void 0, void 0, function* () {
         const response = yield fetch("http://localhost:7007/api/catalog/locations", {
             method: 'POST',
             headers: {
@@ -74,13 +74,13 @@ exports.backstageApi = {
             },
             body: JSON.stringify({
                 type: "url",
-                target: url
+                target: `${process.env.GITLAB_BACKSTAGE_CATALOG_BASE_URL}${catalogYamlPath}`
             }),
         });
         console.log(response);
         if (!response.ok) {
-            console.error(`Failed to add new URL: ${url}`);
-            throw new Error(`Failed to add new URL: ${url}`);
+            console.error(`Failed to add new URL: ${catalogYamlPath}`);
+            throw new Error(`Failed to add new URL: ${catalogYamlPath}`);
         }
     }),
     refreshLocations: (token) => __awaiter(void 0, void 0, void 0, function* () {

@@ -67,7 +67,7 @@ export const backstageApi = {
         }
     },
     addNewLocation: async (
-        url: string,
+        catalogYamlPath: string,
         token: string,
     ) => {
         const response = await fetch("http://localhost:7007/api/catalog/locations", {
@@ -79,15 +79,15 @@ export const backstageApi = {
             },
             body: JSON.stringify({
                 type: "url",
-                target: url
+                target: `${process.env.GITLAB_BACKSTAGE_CATALOG_BASE_URL}${catalogYamlPath}`
             }),
         });
 
         console.log(response)
 
         if (!response.ok) {
-            console.error(`Failed to add new URL: ${url}`);
-            throw new Error(`Failed to add new URL: ${url}`);
+            console.error(`Failed to add new URL: ${catalogYamlPath}`);
+            throw new Error(`Failed to add new URL: ${catalogYamlPath}`);
         }
     },
     refreshLocations: async (
