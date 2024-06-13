@@ -32,4 +32,36 @@ exports.backstageApi = {
         }
         return response.json();
     }),
+    // Upload a text file to a GitLab repository
+    getEntityUid: (kind, namespace, name, token) => __awaiter(void 0, void 0, void 0, function* () {
+        const url = `http://localhost:7007/api/catalog/entities/by-name/${kind}/${namespace}/${name}`;
+        const response = yield fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+            }
+        });
+        if (!response.ok) {
+            console.error(`Failed to fetch file from GitLab: ${url}`);
+            throw new Error(`Failed to fetch file from GitLab: ${response.statusText}`);
+        }
+        const data = yield response.json();
+        return data.metadata.uid;
+    }),
+    // Upload a text file to a GitLab repository
+    deleteByUid: (uid, token) => __awaiter(void 0, void 0, void 0, function* () {
+        const url = `http://localhost:7007/api/catalog/entities/by-uid/${uid}`;
+        const response = yield fetch(url, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+            }
+        });
+        if (!response.ok) {
+            console.error(`Failed to fetch file from GitLab: ${url}`);
+            throw new Error(`Failed to fetch file from GitLab: ${response.statusText}`);
+        }
+    }),
 };
