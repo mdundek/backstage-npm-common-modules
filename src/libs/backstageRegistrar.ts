@@ -11,7 +11,7 @@ export interface GitlabInputsParameters {
 export interface GlobalInputsParameters {
     recordType: string;
     resourceOwnerRef?: string;
-    annotationNeotekType: string;
+    annotationNeotekType?: string;
     normalizedName: string;
     metadataTitle?: string;
     metadataDescription?: string;
