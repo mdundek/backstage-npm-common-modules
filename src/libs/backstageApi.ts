@@ -66,4 +66,48 @@ export const backstageApi = {
             throw new Error(`Failed to fetch file from GitLab: ${response.statusText}`);
         }
     },
+    addNewLocation: async (
+        url: string,
+        token: string,
+    ) => {
+        const response = await fetch("http://localhost:7007/api/catalog/locations", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': 'Bearer ' + token
+            },
+            body: JSON.stringify({
+                type: "url",
+                target: url
+            }),
+        });
+
+        console.log(response)
+
+        if (!response.ok) {
+            console.error(`Failed to add new URL: ${url}`);
+            throw new Error(`Failed to add new URL: ${url}`);
+        }
+    },
+    refreshLocations: async (
+        token: string,
+    ) => {
+        const response = await fetch("http://localhost:7007/api/catalog/refresh", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+            },
+            body: JSON.stringify({
+                entityRef: "location:default/backstage-poc-resources",
+                authorizationToken: token,
+            }),
+        });
+
+        if (!response.ok) {
+            console.error(`Failed to refresh locations`);
+            throw new Error(`Failed to refresh locations`);
+        }
+    }
 };
