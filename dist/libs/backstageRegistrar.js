@@ -335,7 +335,6 @@ spec:
             const catalogFilePath = `${this.gitlabInputs.catalogDir}/${this.globalInputs.normalizedName}.yaml`;
             yield this.deleteFile(catalogFilePath);
             yield this.removeLocationFile(`./${catalogFilePath}`);
-            return this.genName;
         });
     }
     /**

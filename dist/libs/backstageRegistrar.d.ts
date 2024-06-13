@@ -6,7 +6,7 @@ export interface GitlabInputsParameters {
 }
 export interface GlobalInputsParameters {
     recordType: string;
-    resourceOwnerRef: string;
+    resourceOwnerRef?: string;
     annotationNeotekType: string;
     normalizedName: string;
     metadataTitle?: string;
@@ -124,7 +124,7 @@ export declare class BackstageComponentRegistrar {
      * @param componentInputs
      * @returns
      */
-    unregisterEntityFromCatalog(globalInputs: GlobalInputsParameters): Promise<string>;
+    unregisterEntityFromCatalog(globalInputs: GlobalInputsParameters): Promise<void>;
     /**
     *
     */

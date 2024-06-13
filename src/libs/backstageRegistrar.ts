@@ -10,7 +10,7 @@ export interface GitlabInputsParameters {
 
 export interface GlobalInputsParameters {
     recordType: string;
-    resourceOwnerRef: string;
+    resourceOwnerRef?: string;
     annotationNeotekType: string;
     normalizedName: string;
     metadataTitle?: string;
@@ -367,8 +367,6 @@ spec:
 
         await this.deleteFile(catalogFilePath);
         await this.removeLocationFile(`./${catalogFilePath}`);
-
-        return this.genName;
     }
 
      /**
