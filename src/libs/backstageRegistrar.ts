@@ -223,6 +223,35 @@ spec:
         }
     }
 
+     /**
+     * 
+     * @param filePath 
+     */
+     private async deleteFile(filePath: string) {
+        if(!await this.fileExists(filePath, this.branchName)) {
+            return;
+        }
+
+        const url = `https://gitlab.ea.com/api/v4/projects/${this.gitlabProjectId}/repository/files/${encodeURIComponent(filePath)}`;
+        const payload = {
+            branch: this.branchName,
+            commit_message: this.commitMessage
+        };
+
+        const response = await fetch(url, {
+            method: "DELETE",
+            headers: {
+                'PRIVATE-TOKEN': this.gitlabToken,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed todelete the file`);
+        }
+    }
+
     /**
      * 
      * @param filePath 
@@ -258,6 +287,18 @@ spec:
 
     /**
      * 
+     * @param locationsContent 
+     * @param toDelLocation 
+     * @returns 
+     */
+    private removeLocationsFileContent(locationsContent: string, toDelLocation: string): string {
+        const locationsYaml: any = yaml.load(locationsContent);
+        locationsYaml.spec.targets = locationsYaml.spec.targets.filter((location: string) => location !== toDelLocation);
+        return yaml.dump(locationsYaml);
+    }
+
+    /**
+     * 
      * @param newLocation 
      */
     private async updateLocationsFile(newLocation: string) {
@@ -265,6 +306,19 @@ spec:
 
         let locationsContent = await this.getFileContent(locationsFilePath);
         locationsContent = this.updateLocationsFileContent(locationsContent, newLocation);
+
+        await this.updateOrCreateFile(locationsFilePath, locationsContent);
+    }
+
+    /**
+     * 
+     * @param toDelLocation 
+     */
+    private async removeLocationFile(toDelLocation: string) {
+        const locationsFilePath = 'locations.yaml';
+
+        let locationsContent = await this.getFileContent(locationsFilePath);
+        locationsContent = this.removeLocationsFileContent(locationsContent, toDelLocation);
 
         await this.updateOrCreateFile(locationsFilePath, locationsContent);
     }
@@ -290,6 +344,29 @@ spec:
 
         await this.updateOrCreateFile(catalogFilePath, yamlContent);
         await this.updateLocationsFile(`./${catalogFilePath}`);
+
+        return this.genName;
+    }
+
+    /**
+     * 
+     * @param globalInputs 
+     * @param componentInputs 
+     * @returns 
+     */
+    public async unregisterComponentFromCatalog(globalInputs: GlobalInputsParameters) {
+        this.globalInputs = globalInputs;
+        this.genName = `${this.globalInputs.recordType}-${this.globalInputs.normalizedName}`;
+        this.gitlabToken = "";
+        this.gitlabProjectId = ""
+
+        this.gitlabToken = await this.getGitlabToken();
+        this.gitlabProjectId = await this.getGitlabProjectId(); 
+
+        const catalogFilePath = `${this.gitlabInputs.catalogDir}/${this.globalInputs.normalizedName}.yaml`;
+
+        await this.deleteFile(catalogFilePath);
+        await this.removeLocationFile(`./${catalogFilePath}`);
 
         return this.genName;
     }

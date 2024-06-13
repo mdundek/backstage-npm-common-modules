@@ -77,6 +77,11 @@ export declare class BackstageComponentRegistrar {
      */
     private updateOrCreateFile;
     /**
+    *
+    * @param filePath
+    */
+    private deleteFile;
+    /**
      *
      * @param filePath
      * @returns
@@ -91,9 +96,21 @@ export declare class BackstageComponentRegistrar {
     private updateLocationsFileContent;
     /**
      *
+     * @param locationsContent
+     * @param toDelLocation
+     * @returns
+     */
+    private removeLocationsFileContent;
+    /**
+     *
      * @param newLocation
      */
     private updateLocationsFile;
+    /**
+     *
+     * @param toDelLocation
+     */
+    private removeLocationFile;
     /**
      *
      * @param globalInputs
@@ -101,6 +118,13 @@ export declare class BackstageComponentRegistrar {
      * @returns
      */
     registerComponentInCatalog(globalInputs: GlobalInputsParameters, componentInputs: ComponentInputsParameters): Promise<string>;
+    /**
+     *
+     * @param globalInputs
+     * @param componentInputs
+     * @returns
+     */
+    unregisterComponentFromCatalog(globalInputs: GlobalInputsParameters): Promise<string>;
     /**
     *
     */
