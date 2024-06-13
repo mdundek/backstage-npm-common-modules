@@ -9,7 +9,7 @@ export interface GlobalInputsParameters {
     resourceOwnerRef: string;
     annotationNeotekType: string;
     normalizedName: string;
-    metadataTitle: string;
+    metadataTitle?: string;
     metadataDescription?: string;
     specOther?: string;
 }
@@ -124,7 +124,7 @@ export declare class BackstageComponentRegistrar {
      * @param componentInputs
      * @returns
      */
-    unregisterComponentFromCatalog(globalInputs: GlobalInputsParameters): Promise<string>;
+    unregisterEntityFromCatalog(globalInputs: GlobalInputsParameters): Promise<string>;
     /**
     *
     */

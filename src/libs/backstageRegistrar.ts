@@ -13,7 +13,7 @@ export interface GlobalInputsParameters {
     resourceOwnerRef: string;
     annotationNeotekType: string;
     normalizedName: string;
-    metadataTitle: string;
+    metadataTitle?: string;
     metadataDescription?: string;
     specOther?: string;
 }
@@ -354,7 +354,7 @@ spec:
      * @param componentInputs 
      * @returns 
      */
-    public async unregisterComponentFromCatalog(globalInputs: GlobalInputsParameters) {
+    public async unregisterEntityFromCatalog(globalInputs: GlobalInputsParameters) {
         this.globalInputs = globalInputs;
         this.genName = `${this.globalInputs.recordType}-${this.globalInputs.normalizedName}`;
         this.gitlabToken = "";

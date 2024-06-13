@@ -324,7 +324,7 @@ spec:
      * @param componentInputs
      * @returns
      */
-    unregisterComponentFromCatalog(globalInputs) {
+    unregisterEntityFromCatalog(globalInputs) {
         return __awaiter(this, void 0, void 0, function* () {
             this.globalInputs = globalInputs;
             this.genName = `${this.globalInputs.recordType}-${this.globalInputs.normalizedName}`;
