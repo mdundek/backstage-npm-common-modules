@@ -58,10 +58,10 @@ class ArgoClient {
     fetchWorkflowFromWorkflowRepo(filePath, isAxionRepo, branchName) {
         return __awaiter(this, void 0, void 0, function* () {
             const k8sClient = new kubernetes_1.KubernetesClient(this.KUBE_API_SERVER, this.SA_TOKEN);
-            let secretValues = yield k8sClient.getSecretValues('backstage-system', 'backstage-gitlab-creds');
-            const workflowsRepoProjectId = isAxionRepo ? secretValues["axionWorkflowsRepoProjectId"] : secretValues["backstageWorkflowsRepoProjectId"];
+            let secretValues = yield k8sClient.getSecretValues('backstage-system', 'backstage-secrets');
+            const workflowsRepoProjectId = isAxionRepo ? secretValues["GITLAB_AXION_WORKFLOWS_REPO_ID"] : secretValues["GITLAB_BACKSTAGE_WORKFLOWS_REPO_ID"];
             const branchOrTag = branchName ? branchName : 'main';
-            const personalAccessToken = secretValues.backstageGroupToken;
+            const personalAccessToken = secretValues.GITLAB_GROUP_BACKSTAGE_RW_TOKEN;
             let fileContent = yield gitlab_1.gitlab.downloadFile(workflowsRepoProjectId, filePath, branchOrTag, personalAccessToken);
             return yaml.load(fileContent);
         });

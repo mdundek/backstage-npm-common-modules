@@ -49,9 +49,9 @@ class BackstageComponentRegistrar {
         this.commitMessage = "Automated backstage catalog update";
         const gitlabInputParameters = {
             catalogDir: "systems", // ok
-            gitlabCredsSecretName: "backstage-gitlab-creds", // ok
+            gitlabCredsSecretName: "backstage-secrets", // ok
             gitlabCredsSecretNamespace: "backstage-system", // ok
-            gitlabCredsSecretProjectIdField: "catalogRepoProjectId"
+            gitlabCredsSecretProjectIdField: "GITLAB_BACKSTAGE_CATALOG_REPO_ID"
         };
         this.componentInputs = {};
         this.globalInputs = {};
@@ -70,7 +70,7 @@ class BackstageComponentRegistrar {
             const response = yield this.k8sCLient.fetchSecret(this.gitlabInputs.gitlabCredsSecretName, this.gitlabInputs.gitlabCredsSecretNamespace);
             if (response.status === 200) {
                 const secretData = yield response.json();
-                return Buffer.from(secretData.data.backstageGroupToken, 'base64').toString('utf-8');
+                return Buffer.from(secretData.data.GITLAB_GROUP_BACKSTAGE_RW_TOKEN, 'base64').toString('utf-8');
             }
             else {
                 throw new Error("Could not retrieve backstage secret");

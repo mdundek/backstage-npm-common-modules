@@ -52,9 +52,9 @@ export class BackstageComponentRegistrar {
     constructor(gitlabInputs?: GitlabInputsParameters) {
         const gitlabInputParameters: GitlabInputsParameters = {
             catalogDir: "systems", // ok
-            gitlabCredsSecretName: "backstage-gitlab-creds", // ok
+            gitlabCredsSecretName: "backstage-secrets", // ok
             gitlabCredsSecretNamespace: "backstage-system", // ok
-            gitlabCredsSecretProjectIdField: "catalogRepoProjectId"
+            gitlabCredsSecretProjectIdField: "GITLAB_BACKSTAGE_CATALOG_REPO_ID"
         };
         this.componentInputs = {} as ComponentInputsParameters;
         this.globalInputs = {} as GlobalInputsParameters;
@@ -76,7 +76,7 @@ export class BackstageComponentRegistrar {
         );
         if (response.status === 200) {
             const secretData = await response.json();
-            return Buffer.from(secretData.data.backstageGroupToken, 'base64').toString('utf-8');
+            return Buffer.from(secretData.data.GITLAB_GROUP_BACKSTAGE_RW_TOKEN, 'base64').toString('utf-8');
         } else {
             throw new Error("Could not retrieve backstage secret")
         }
