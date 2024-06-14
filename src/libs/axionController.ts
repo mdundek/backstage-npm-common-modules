@@ -1,10 +1,12 @@
 import { KubernetesClient } from './kubernetes';
+import { BackstageComponentRegistrar } from './backstageRegistrar';
 import { ArgoClient } from './argo';
 import * as os from 'os';
 import * as path from 'path';
 import { spawn } from 'child_process';
 import ShortUniqueId from 'short-unique-id';
 import * as fs from 'fs/promises';
+import * as yaml from 'js-yaml';
 
 /**
  * fetchProxy
@@ -433,6 +435,206 @@ fi`);
                 resolve(exitCode);
             });
         });
+    }
+
+    /**
+     * validateCredentials
+     * @param ctx 
+     * @param clusterEntity 
+     * @param nakedRepo 
+     * @param k8sSaToken 
+     * @param k8sHost 
+     */
+    public async validateCredentials(
+        ctx: any, 
+        clusterEntity: any, 
+        nakedRepo: string, 
+        k8sSaToken: string, 
+        k8sHost: string
+    ) {
+        ctx.logger.info(' => Validating credentials and basic access...');
+        const authErrors = [];
+        const cloudCredsValid = await this.testCloudCreds(ctx.input.cloudCredentials, clusterEntity.spec.data.projectId);
+        const ociCredsValid = await this.testOciCreds(nakedRepo, ctx.input.ociAuthUsername, ctx.input.ociAuthToken);
+        if (ctx.input.manageAxionSecretsWithVault) {
+            const vaultCredsValid = await this.testVaultCreds(ctx.input.vaultTemporaryToken, ctx.input.vaultEnvironment, ctx.input.vaultNamespace);
+            if (!vaultCredsValid) {
+                authErrors.push("- Your Vault credentials are invalid");
+            }
+        }
+        const checkKubeapi = await this.testKubeToken(k8sSaToken, k8sHost);
+        if (!cloudCredsValid) {
+            authErrors.push("- Your cloud credentials are invalid");
+        }
+        if (!ociCredsValid) {
+            authErrors.push("- Your OCI credentials are invalid");
+        }
+        if (!checkKubeapi) {
+            authErrors.push("- Your target cluster token is invalid");
+        }
+        if (authErrors.length > 0) {
+            throw new Error(`The following errors were found:\n${authErrors.join("\n")}`);
+        }
+    }
+
+    /**
+     * 
+     * @param ctx 
+     * @param clusterEntity 
+     * @param dnsEntity 
+     * @param k8sHost 
+     * @param workflowFilePath 
+     */
+    public async prepareWorkflow(
+        ctx: any, 
+        clusterEntity: any, 
+        dnsEntity: any, 
+        k8sHost: string, 
+        workflowFilePath: string
+    ) {
+        // Generate a unique name for the workflow
+        let uid = new ShortUniqueId({ length: 5 });
+        let uidGen = uid.rnd().toLowerCase();
+
+        // Fetch the Axion workflow from the Axion workflow repository
+        // NOTE: We do not use the target cluster to initiate this here because
+        //       it queires the backstage Kube API to get the gitlab credentials,
+        //       those are located on this cluster
+        ctx.logger.info(' => Fetching Axion workflow from the Axion workflow repository...');
+        const workflow: any = await new ArgoClient().fetchWorkflowFromWorkflowRepo('axion/axion-install-proxy.yaml'/*, true, 'dev-extended'*/); // TODO: Updated!
+
+        // Compute the arguments for the Axion installation
+        ctx.logger.info(' => Preparing for Axion installation...');
+
+        // Update the workflow with the computed arguments
+        const args = this.computeArgumentsFile(clusterEntity, dnsEntity, JSON.parse(ctx.input.cloudCredentials).project_id, ctx);
+
+        const updatedWorkflowTmp = this.updateWorkflowSpecArguments(workflow, args);
+
+        const manageSecretsWithVault = ctx.input.installExternalSecrets ? ctx.input.manageAxionSecretsWithVault : false;
+        // ArgoCD
+        const argoCdRepo = updatedWorkflowTmp.spec.arguments.parameters.find((param: { name: string; }) => param.name === 'argoCdHelmRepo').value;	
+        const argoCdChart = updatedWorkflowTmp.spec.arguments.parameters.find((param: { name: string; }) => param.name === 'argoCdHelmChart').value;
+        const argoCdVersion = updatedWorkflowTmp.spec.arguments.parameters.find((param: { name: string; }) => param.name === 'argoCdHelmVersion').value;
+
+        // ExternalSecrets
+        const externalSecretsRepo = updatedWorkflowTmp.spec.arguments.parameters.find((param: { name: string; }) => param.name === 'externalSecretsHelmRepo').value;	
+        const externalSecretsChart = updatedWorkflowTmp.spec.arguments.parameters.find((param: { name: string; }) => param.name === 'externalSecretsHelmChart').value;
+        const externalSecretsVersion = updatedWorkflowTmp.spec.arguments.parameters.find((param: { name: string; }) => param.name === 'externalSecretsHelmVersion').value;
+        const clusterSecretStoreName = updatedWorkflowTmp.spec.arguments.parameters.find((param: { name: string; }) => param.name === 'vaultAxionClusterSecretStoreName').value;
+
+        // CertManager
+        const certManagerRepo = updatedWorkflowTmp.spec.arguments.parameters.find((param: { name: string; }) => param.name === 'certManagerHelmRepo').value;	
+        const certManagerChart = updatedWorkflowTmp.spec.arguments.parameters.find((param: { name: string; }) => param.name === 'certManagerHelmChart').value;
+        const certManagerVersion = updatedWorkflowTmp.spec.arguments.parameters.find((param: { name: string; }) => param.name === 'certManagerHelmVersion').value;
+        const certManagerRootClusterIssuer = updatedWorkflowTmp.spec.arguments.parameters.find((param: { name: string; }) => param.name === 'rootDomainAxionClusterIssuerName').value;
+
+        // ExternalDns
+        const externalDnsRepo = updatedWorkflowTmp.spec.arguments.parameters.find((param: { name: string; }) => param.name === 'externalDnsHelmRepo').value;	
+        const externalDnsChart = updatedWorkflowTmp.spec.arguments.parameters.find((param: { name: string; }) => param.name === 'externalDnsHelmChart').value;
+        const externalDnsVersion = updatedWorkflowTmp.spec.arguments.parameters.find((param: { name: string; }) => param.name === 'externalDnsHelmVersion').value;
+        const externalDnsClusterRootDomain = updatedWorkflowTmp.spec.arguments.parameters.find((param: { name: string; }) => param.name === 'clusterRootDomain').value;
+
+        // Istio
+        const istioGatewayRepo = updatedWorkflowTmp.spec.arguments.parameters.find((param: { name: string; }) => param.name === 'istioGatewayHelmRepo').value;	
+        const istioGatewayChart = updatedWorkflowTmp.spec.arguments.parameters.find((param: { name: string; }) => param.name === 'istioGatewayHelmChart').value;
+        const istioGatewayVersion = updatedWorkflowTmp.spec.arguments.parameters.find((param: { name: string; }) => param.name === 'istioGatewayHelmVersion').value;
+
+        // Crossplane
+        const crossplaneRepo = updatedWorkflowTmp.spec.arguments.parameters.find((param: { name: string; }) => param.name === 'crossplaneHelmRepo').value;	
+        const crossplaneChart = updatedWorkflowTmp.spec.arguments.parameters.find((param: { name: string; }) => param.name === 'crossplaneHelmChart').value;
+        const crossplaneVersion = updatedWorkflowTmp.spec.arguments.parameters.find((param: { name: string; }) => param.name === 'crossplaneHelmVersion').value;
+        const gcpProviderConfigName = updatedWorkflowTmp.spec.arguments.parameters.find((param: { name: string; }) => param.name === 'gcpProviderConfigName').value;
+
+        args.uuid = uidGen;
+        args.gitlabCredsSecretName = "backstage-secrets"
+        args.gitlabCredsSecretNamespace = "backstage-system"
+        args.resourceOwnerRef = ctx.input.catalogOwnerRef;
+        args.targetBackstageSystem = ctx.input.targetSystem;
+        args.targetBackstageSystemNormalized = BackstageComponentRegistrar.normalizeSystemRef(ctx.input.targetSystem);
+        args.normalizedName = ctx.input.name;
+        args.backstageSpecOther = yaml.dump({
+            "data": {
+                "cloudProvider": dnsEntity.spec.cloudProvider,
+                "k8sCatalogRef": ctx.input.targetCluster,
+                "dnsCatalogRef": ctx.input.rootDnsHost,
+                "kubeApiHost": k8sHost,
+                "gcpProjectId": clusterEntity.spec.data.projectId,
+                "oci": {
+                    "ociRepo": clusterEntity.spec.data.ociRepo,
+                    "ociUsername": ctx.input.ociAuthUsername,
+                },
+                "vault": {
+                    "vaultNamespace": manageSecretsWithVault ? ctx.input.vaultNamespace : "",
+                    "vaultEnvironment": manageSecretsWithVault ? ctx.input.vaultEnvironment : "",
+                },
+                "features": {
+                    "istio": {
+                        "installed": ctx.input.installIstio,
+                        "repo": istioGatewayRepo,
+                        "chart": istioGatewayChart,
+                        "version": istioGatewayVersion,
+                    },
+                    "externalDns": {
+                        "installed": ctx.input.installExternalDns,
+                        "repo": externalDnsRepo,
+                        "chart": externalDnsChart,
+                        "version": externalDnsVersion,
+                        "clusterRootDomain": externalDnsClusterRootDomain
+                    },
+                    "certManager": {
+                        "installed": ctx.input.installCertManager,
+                        "repo": certManagerRepo,
+                        "chart": certManagerChart,
+                        "version": certManagerVersion,
+                        "clusterIssuer": certManagerRootClusterIssuer
+                    },
+                    "externalSecrets": {
+                        "installed": ctx.input.installExternalSecrets,
+                        "repo": externalSecretsRepo,
+                        "chart": externalSecretsChart,
+                        "version": externalSecretsVersion,
+                        "clusterSecretStoreName": clusterSecretStoreName
+                    },
+                    "argoCd": {
+                        "installed": ctx.input.installArgocd,
+                        "repo": argoCdRepo,
+                        "chart": argoCdChart,
+                        "version": argoCdVersion,
+                        "dashboardUrl": `https://argocd.${externalDnsClusterRootDomain}`
+                    },
+                    "crossplane": {
+                        "installed": true,
+                        "repo": crossplaneRepo,
+                        "chart": crossplaneChart,
+                        "version": crossplaneVersion,
+                        "gcpProviderConfigName": gcpProviderConfigName
+                    },
+                    "manageAxionSecretsWithVault": manageSecretsWithVault,
+                    "manageWithArgocd": ctx.input.manageWithArgocd ? ctx.input.manageWithArgocd : false,
+                }
+            }
+        })
+
+        const updatedWorkflow = this.updateWorkflowSpecArguments(workflow, args);
+        
+        const workflowName = `axion-proxy-${ctx.input.name}-${uidGen}`
+        updatedWorkflow.metadata.name = workflowName;
+
+        // Convert the JSON object to YAML format
+        const yamlContent = yaml.dump(updatedWorkflow);
+
+        uid = new ShortUniqueId({ length: 10 });
+        workflowFilePath = `./${uid.rnd()}-workflow-proxy.yaml`
+
+        // Write the YAML content to the specified file
+        await fs.writeFile(workflowFilePath, yamlContent, 'utf-8');
+
+        return {
+            uidGen: uidGen,
+            workflowFilePath: workflowFilePath,
+            workflowName: workflowName
+        }
     }
 }
 

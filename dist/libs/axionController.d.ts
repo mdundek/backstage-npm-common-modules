@@ -89,6 +89,28 @@ declare class AxionController {
      * @returns
      */
     private runCommand;
+    /**
+     * validateCredentials
+     * @param ctx
+     * @param clusterEntity
+     * @param nakedRepo
+     * @param k8sSaToken
+     * @param k8sHost
+     */
+    validateCredentials(ctx: any, clusterEntity: any, nakedRepo: string, k8sSaToken: string, k8sHost: string): Promise<void>;
+    /**
+     *
+     * @param ctx
+     * @param clusterEntity
+     * @param dnsEntity
+     * @param k8sHost
+     * @param workflowFilePath
+     */
+    prepareWorkflow(ctx: any, clusterEntity: any, dnsEntity: any, k8sHost: string, workflowFilePath: string): Promise<{
+        uidGen: string;
+        workflowFilePath: string;
+        workflowName: string;
+    }>;
 }
 export { AxionController };
 //# sourceMappingURL=axionController.d.ts.map
