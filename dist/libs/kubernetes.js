@@ -188,6 +188,81 @@ class KubernetesClient {
             return yield response.json();
         });
     }
+    /**
+     * namespaceExists
+     * @param namespace
+     * @returns
+     */
+    namespaceExists(namespace) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const response = yield fetchProxy(`${KUBE_API_SERVER}/api/v1/namespaces/${namespace}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${this.SA_TOKEN}`
+                },
+            });
+            if (response.status === 200) {
+                return true;
+            }
+            else if (response.status === 404) {
+                return false;
+            }
+            else {
+                throw new Error(`Failed to lookup namespace, status: ${response.status}`);
+            }
+        });
+    }
+    /**
+     * createNamespace
+     * @param namespace
+     */
+    createNamespace(namespace) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const response = yield this.applyResource(`${KUBE_API_SERVER}/api/v1/namespaces`, {
+                apiVersion: "v1",
+                kind: "Namespace",
+                metadata: {
+                    name: namespace,
+                },
+            });
+            // Check if the response is ok (status code 200-299)
+            if (!response.ok) {
+                throw new Error(`Failed to create namespace, status: ${response.status}`);
+            }
+        });
+    }
+    /**
+     *
+     * @param name
+     * @param namespace
+     * @returns
+     */
+    hasDeployment(name, namespace) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const response = yield fetchProxy(`${KUBE_API_SERVER}/apis/apps/v1/namespaces/${namespace}/deployments/${name}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${this.SA_TOKEN}`
+                },
+            });
+            if (response.status === 200) {
+                return true;
+            }
+            else if (response.status === 404) {
+                return false;
+            }
+            else {
+                throw new Error(`Failed to lookup deployment, status: ${response.status}`);
+            }
+        });
+    }
+    /**
+     *
+     * @param yamlLocalionUrl
+     * @param targetNamespace
+     */
     deployRemoteYaml(yamlLocalionUrl, targetNamespace) {
         return __awaiter(this, void 0, void 0, function* () {
             const clusterScopedKinds = new Set([

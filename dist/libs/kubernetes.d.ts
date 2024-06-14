@@ -43,6 +43,29 @@ declare class KubernetesClient {
      * @returns
      */
     fetchRaw(path: string): Promise<any>;
+    /**
+     * namespaceExists
+     * @param namespace
+     * @returns
+     */
+    namespaceExists(namespace: string): Promise<boolean>;
+    /**
+     * createNamespace
+     * @param namespace
+     */
+    createNamespace(namespace: string): Promise<void>;
+    /**
+     *
+     * @param name
+     * @param namespace
+     * @returns
+     */
+    hasDeployment(name: string, namespace: string): Promise<boolean>;
+    /**
+     *
+     * @param yamlLocalionUrl
+     * @param targetNamespace
+     */
     deployRemoteYaml(yamlLocalionUrl: string, targetNamespace: string): Promise<void>;
 }
 export { KubernetesClient };

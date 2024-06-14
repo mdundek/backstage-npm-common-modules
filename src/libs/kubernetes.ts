@@ -161,8 +161,74 @@ class KubernetesClient {
         return await response.json();
     }
 
+    /**
+     * namespaceExists
+     * @param namespace 
+     * @returns 
+     */
+    public async namespaceExists(namespace: string) {
+        const response = await fetchProxy(`${KUBE_API_SERVER}/api/v1/namespaces/${namespace}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${this.SA_TOKEN}`
+            },
+        });
+        if (response.status === 200) {
+            return true;
+        } else if (response.status === 404) {
+            return false;
+        } else {
+            throw new Error(`Failed to lookup namespace, status: ${response.status}`);
+        }
+    }
 
+    /**
+     * createNamespace
+     * @param namespace 
+     */
+    public async createNamespace(namespace: string) {
+        const response = await this.applyResource(`${KUBE_API_SERVER}/api/v1/namespaces`, {
+            apiVersion: "v1",
+            kind: "Namespace",
+            metadata: {
+              name: namespace,
+            },
+        })
+        // Check if the response is ok (status code 200-299)
+        if (!response.ok) {
+            throw new Error(`Failed to create namespace, status: ${response.status}`);
+        }
+    }
 
+    /**
+     * 
+     * @param name 
+     * @param namespace 
+     * @returns 
+     */
+    public async hasDeployment(name: string, namespace: string) {
+        const response = await fetchProxy(`${KUBE_API_SERVER}/apis/apps/v1/namespaces/${namespace}/deployments/${name}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${this.SA_TOKEN}`
+            },
+        });
+        if (response.status === 200) {
+            return true;
+        } else if (response.status === 404) {
+            return false;
+        } else {
+            throw new Error(`Failed to lookup deployment, status: ${response.status}`);
+        }
+    }
+
+    /**
+     * 
+     * @param yamlLocalionUrl 
+     * @param targetNamespace 
+     */
     public async deployRemoteYaml(
         yamlLocalionUrl: string, 
         targetNamespace: string
@@ -172,7 +238,6 @@ class KubernetesClient {
             'ClusterRole', 'ClusterRoleBinding', 'ValidatingWebhookConfiguration',
             'MutatingWebhookConfiguration', 'APIService', 'PriorityClass'
         ]);
-    
     
         // Fetch the YAML content from the URL
         const response = await fetch(yamlLocalionUrl);
