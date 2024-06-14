@@ -66,6 +66,23 @@ exports.backstageApi = {
         const data = yield response.json();
         return data.items;
     }),
+    // Find entries with dependencies to this component
+    findSystemNeotekTypedComponents: (type, token) => __awaiter(void 0, void 0, void 0, function* () {
+        const url = `http://localhost:7007/api/catalog/entities/by-query?filter=metadata.annotations.neotek.ea.com/component-type=${type}`;
+        const response = yield fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+            }
+        });
+        if (!response.ok) {
+            console.error(`Failed to find components: ${url}`);
+            throw new Error(`Failed to find components: ${response.statusText}`);
+        }
+        const data = yield response.json();
+        return data.items;
+    }),
     // Upload a text file to a GitLab repository
     deleteByUid: (uid, token) => __awaiter(void 0, void 0, void 0, function* () {
         const url = `http://localhost:7007/api/catalog/entities/by-uid/${uid}`;
