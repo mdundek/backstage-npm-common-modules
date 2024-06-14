@@ -100,6 +100,6 @@ exports.gitlab = {
             throw new Error('Failed to fetch folder content');
         }
         const files = yield response.json();
-        return files.filter((file) => file.type === 'blob'); // Filter to get only files, not directories
+        return files.filter((file) => file.type === 'blob').map((file) => file.path); // Filter to get only files, not directories
     })
 };

@@ -117,6 +117,6 @@ export const gitlab = {
     
         const files = await response.json();
     
-        return files.filter((file: any) => file.type === 'blob'); // Filter to get only files, not directories
+        return files.filter((file: any) => file.type === 'blob').map((file: any) => file.path); // Filter to get only files, not directories
     }
 };
