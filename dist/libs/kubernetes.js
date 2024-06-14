@@ -309,7 +309,7 @@ class KubernetesClient {
                             apiPath = `/apis/${group}/${version}/${apiKindLower}${apiKindLower.endsWith("ss") ? "es" : "s"}`;
                         }
                     }
-                    else {
+                    else if (targetNamespace) {
                         // Namespace-scoped resource
                         if (apiVersion.startsWith('v1')) {
                             apiPath = `/api/v1/namespaces/${targetNamespace}/${apiKindLower}${apiKindLower.endsWith("ss") ? "es" : "s"}`;
@@ -318,6 +318,9 @@ class KubernetesClient {
                             const [group, version] = apiVersion.split('/');
                             apiPath = `/apis/${group}/${version}/namespaces/${targetNamespace}/${apiKindLower}${apiKindLower.endsWith("ss") ? "es" : "s"}`;
                         }
+                    }
+                    else {
+                        throw new Error(`Resource kind ${kind} is not supported in cluster-scoped mode.`);
                     }
                     yield this.applyResource(apiPath, resource, true);
                 }

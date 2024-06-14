@@ -72,7 +72,7 @@ declare class KubernetesClient {
      * @param yamlContent
      * @param targetNamespace
      */
-    applyYaml(yamlContent: string, targetNamespace: string): Promise<void>;
+    applyYaml(yamlContent: string, targetNamespace?: string): Promise<void>;
 }
 export { KubernetesClient };
 //# sourceMappingURL=kubernetes.d.ts.map
