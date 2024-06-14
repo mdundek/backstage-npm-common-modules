@@ -47,6 +47,27 @@ export const backstageApi = {
         const data = await response.json();
         return data.metadata.uid;
     },
+    // Find entries with dependencies to this component
+    findDependantComponents: async (
+        name: string,
+        token: string,
+    ) => {
+        const url = `http://localhost:7007/api/catalog/entities/by-query?filter=kind=component,relations.dependsOn=component:default/${name}`;
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+            }
+        });
+
+        if (!response.ok) {
+            console.error(`Failed to find components: ${url}`);
+            throw new Error(`Failed to find components: ${response.statusText}`);
+        }
+        const data = await response.json();
+        return data.items;
+    },
     // Upload a text file to a GitLab repository
     deleteByUid: async (
         uid: string,
