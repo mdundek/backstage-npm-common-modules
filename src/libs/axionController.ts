@@ -695,19 +695,17 @@ fi`);
     /**
      * 
      * @param ctx 
-     * @param k8sRemoteClient 
      */
-    public async ensureArgoIsInstalled(ctx: any, k8sRemoteClient: KubernetesClient) {
-        ctx.logger.info(' => Checking for Argo Workflow installation...');
-        const argoNsExists = await k8sRemoteClient.namespaceExists("argo");
+    public async ensureArgoIsInstalled(ctx: any) {
+        const argoNsExists = await this.k8sClient.namespaceExists("argo");
         if (!argoNsExists) {
-            await k8sRemoteClient.createNamespace("argo");
+            await this.k8sClient.createNamespace("argo");
         }
-        const argoDeploymentExists = await k8sRemoteClient.hasDeployment("argo-server", "argo");
+        const argoDeploymentExists = await this.k8sClient.hasDeployment("argo-server", "argo");
         if(!argoDeploymentExists) {
             ctx.logger.info(' => Installing Argo Workflow on target cluster...');
             
-            await k8sRemoteClient.deployRemoteYaml(
+            await this.k8sClient.deployRemoteYaml(
                 "https://github.com/argoproj/argo-workflows/releases/download/v3.5.7/quick-start-minimal.yaml",
                 "argo"
             )
@@ -721,9 +719,8 @@ fi`);
      * 
      * @param ctx 
      * @param k8sBackstageClient 
-     * @param k8sRemoteClient 
      */
-    public async deployAxionWorkflowTemplates(ctx: any, k8sBackstageClient: KubernetesClient, k8sRemoteClient: KubernetesClient) {
+    public async deployAxionWorkflowTemplates(ctx: any, k8sBackstageClient: KubernetesClient) {
         let secretValues = await k8sBackstageClient.getSecretValues('backstage-system', 'backstage-secrets');
 			
         const workflowsRepoProjectId = secretValues["GITLAB_AXION_WORKFLOWS_REPO_ID"];
@@ -743,7 +740,7 @@ fi`);
             let parsedLocationsYaml = yaml.load(b64Buffer.toString('utf-8')) as any;
             ctx.logger.info(` => Applying template ${templatePath}...`);
             // Apply to remote cluster
-            k8sRemoteClient.applyYaml(parsedLocationsYaml)
+            this.k8sClient.applyYaml(parsedLocationsYaml)
         }
     }
 }

@@ -128,16 +128,14 @@ declare class AxionController {
     /**
      *
      * @param ctx
-     * @param k8sRemoteClient
      */
-    ensureArgoIsInstalled(ctx: any, k8sRemoteClient: KubernetesClient): Promise<void>;
+    ensureArgoIsInstalled(ctx: any): Promise<void>;
     /**
      *
      * @param ctx
      * @param k8sBackstageClient
-     * @param k8sRemoteClient
      */
-    deployAxionWorkflowTemplates(ctx: any, k8sBackstageClient: KubernetesClient, k8sRemoteClient: KubernetesClient): Promise<void>;
+    deployAxionWorkflowTemplates(ctx: any, k8sBackstageClient: KubernetesClient): Promise<void>;
 }
 export { AxionController };
 //# sourceMappingURL=axionController.d.ts.map
