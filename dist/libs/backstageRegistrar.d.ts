@@ -120,6 +120,20 @@ export declare class BackstageComponentRegistrar {
     registerComponentInCatalog(globalInputs: GlobalInputsParameters, componentInputs: ComponentInputsParameters): Promise<string>;
     /**
      *
+     * @param systemRef
+     * @param recordType
+     * @param name
+     * @returns
+     */
+    static computeCatalogInfoPath(systemRef: string, recordType: string, name: string): string;
+    /**
+     *
+     * @param input
+     * @returns
+     */
+    static normalizeSystemRef(input: string): string;
+    /**
+     *
      * @param globalInputs
      * @param componentInputs
      * @returns

@@ -320,6 +320,29 @@ spec:
     }
     /**
      *
+     * @param systemRef
+     * @param recordType
+     * @param name
+     * @returns
+     */
+    static computeCatalogInfoPath(systemRef, recordType, name) {
+        return `${this.normalizeSystemRef(systemRef)}/${recordType}/${this.normalizeSystemRef(name)}.yaml`;
+    }
+    /**
+     *
+     * @param input
+     * @returns
+     */
+    static normalizeSystemRef(input) {
+        let withoutPrefix = input.replace(/^component:/, '');
+        withoutPrefix = withoutPrefix.replace(/^system:/, '');
+        let result = withoutPrefix.replace(/\//g, '-');
+        result = result.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+        result = result.replace(/_/g, '-');
+        return result;
+    }
+    /**
+     *
      * @param globalInputs
      * @param componentInputs
      * @returns
