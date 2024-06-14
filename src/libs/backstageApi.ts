@@ -90,6 +90,27 @@ export const backstageApi = {
         const data = await response.json();
         return data.items;
     },
+    // Find entries with dependencies to this component
+    findAxionInstancesForCluster: async (
+        clusterRef: string,
+        token: string,
+    ) => {
+        const url = `http://localhost:7007/api/catalog/entities/by-query?filter=metadata.annotations.neotek.ea.com/component-type=axion-instance,relations.dependsOn=component:${clusterRef}`;
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+            }
+        });
+
+        if (!response.ok) {
+            console.error(`Failed to find components: ${url}`);
+            throw new Error(`Failed to find components: ${response.statusText}`);
+        }
+        const data = await response.json();
+        return data.items;
+    },
     // Upload a text file to a GitLab repository
     deleteByUid: async (
         uid: string,
