@@ -1,6 +1,7 @@
 import { KubernetesClient } from './kubernetes';
 import { BackstageComponentRegistrar } from './backstageRegistrar';
 import { ArgoClient } from './argo';
+import { gitlab } from './gitlab';
 import * as os from 'os';
 import * as path from 'path';
 import { spawn } from 'child_process';
@@ -689,6 +690,61 @@ fi`);
         return {
             tmpCredsSecretName: `tmp-${uidGen}`
         };
+    }
+
+    /**
+     * 
+     * @param ctx 
+     * @param k8sRemoteClient 
+     */
+    public async ensureArgoIsInstalled(ctx: any, k8sRemoteClient: KubernetesClient) {
+        ctx.logger.info(' => Checking for Argo Workflow installation...');
+        const argoNsExists = await k8sRemoteClient.namespaceExists("argo");
+        if (!argoNsExists) {
+            await k8sRemoteClient.createNamespace("argo");
+        }
+        const argoDeploymentExists = await k8sRemoteClient.hasDeployment("argo-server", "argo");
+        if(!argoDeploymentExists) {
+            ctx.logger.info(' => Installing Argo Workflow on target cluster...');
+            
+            await k8sRemoteClient.deployRemoteYaml(
+                "https://github.com/argoproj/argo-workflows/releases/download/v3.5.7/quick-start-minimal.yaml",
+                "argo"
+            )
+            ctx.logger.info(' => Successfully deployed Argo to the cluster.');
+        } else {
+            ctx.logger.info(' => Argo Workflow already installed.');
+        }
+    }
+
+    /**
+     * 
+     * @param ctx 
+     * @param k8sBackstageClient 
+     * @param k8sRemoteClient 
+     */
+    public async deployAxionWorkflowTemplates(ctx: any, k8sBackstageClient: KubernetesClient, k8sRemoteClient: KubernetesClient) {
+        let secretValues = await k8sBackstageClient.getSecretValues('backstage-system', 'backstage-secrets');
+			
+        const workflowsRepoProjectId = secretValues["GITLAB_AXION_WORKFLOWS_REPO_ID"];
+        const branchOrTag = 'dev-extended';
+        const personalAccessToken = secretValues.GITLAB_GROUP_BACKSTAGE_RW_TOKEN;
+
+        const templateFiles = await gitlab.getFilesFromFolder(
+            workflowsRepoProjectId, 
+            "axion-argo-workflow/releases/latest/workflow/templates", 
+            branchOrTag, 
+            personalAccessToken
+        );
+        for(let templatePath of templateFiles) {
+            const templateYaml = await gitlab.fetchFile(workflowsRepoProjectId, templatePath, branchOrTag, personalAccessToken);
+            const b64Buffer = Buffer.from(templateYaml.content, 'base64');
+            // Parse the YAML content
+            let parsedLocationsYaml = yaml.load(b64Buffer.toString('utf-8')) as any;
+            ctx.logger.info(` => Applying template ${templatePath}...`);
+            // Apply to remote cluster
+            k8sRemoteClient.applyYaml(parsedLocationsYaml)
+        }
     }
 }
 

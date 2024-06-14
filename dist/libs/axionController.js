@@ -39,6 +39,7 @@ exports.AxionController = void 0;
 const kubernetes_1 = require("./kubernetes");
 const backstageRegistrar_1 = require("./backstageRegistrar");
 const argo_1 = require("./argo");
+const gitlab_1 = require("./gitlab");
 const os = __importStar(require("os"));
 const path = __importStar(require("path"));
 const child_process_1 = require("child_process");
@@ -675,6 +676,53 @@ fi`);
             return {
                 tmpCredsSecretName: `tmp-${uidGen}`
             };
+        });
+    }
+    /**
+     *
+     * @param ctx
+     * @param k8sRemoteClient
+     */
+    ensureArgoIsInstalled(ctx, k8sRemoteClient) {
+        return __awaiter(this, void 0, void 0, function* () {
+            ctx.logger.info(' => Checking for Argo Workflow installation...');
+            const argoNsExists = yield k8sRemoteClient.namespaceExists("argo");
+            if (!argoNsExists) {
+                yield k8sRemoteClient.createNamespace("argo");
+            }
+            const argoDeploymentExists = yield k8sRemoteClient.hasDeployment("argo-server", "argo");
+            if (!argoDeploymentExists) {
+                ctx.logger.info(' => Installing Argo Workflow on target cluster...');
+                yield k8sRemoteClient.deployRemoteYaml("https://github.com/argoproj/argo-workflows/releases/download/v3.5.7/quick-start-minimal.yaml", "argo");
+                ctx.logger.info(' => Successfully deployed Argo to the cluster.');
+            }
+            else {
+                ctx.logger.info(' => Argo Workflow already installed.');
+            }
+        });
+    }
+    /**
+     *
+     * @param ctx
+     * @param k8sBackstageClient
+     * @param k8sRemoteClient
+     */
+    deployAxionWorkflowTemplates(ctx, k8sBackstageClient, k8sRemoteClient) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let secretValues = yield k8sBackstageClient.getSecretValues('backstage-system', 'backstage-secrets');
+            const workflowsRepoProjectId = secretValues["GITLAB_AXION_WORKFLOWS_REPO_ID"];
+            const branchOrTag = 'dev-extended';
+            const personalAccessToken = secretValues.GITLAB_GROUP_BACKSTAGE_RW_TOKEN;
+            const templateFiles = yield gitlab_1.gitlab.getFilesFromFolder(workflowsRepoProjectId, "axion-argo-workflow/releases/latest/workflow/templates", branchOrTag, personalAccessToken);
+            for (let templatePath of templateFiles) {
+                const templateYaml = yield gitlab_1.gitlab.fetchFile(workflowsRepoProjectId, templatePath, branchOrTag, personalAccessToken);
+                const b64Buffer = Buffer.from(templateYaml.content, 'base64');
+                // Parse the YAML content
+                let parsedLocationsYaml = yaml.load(b64Buffer.toString('utf-8'));
+                ctx.logger.info(` => Applying template ${templatePath}...`);
+                // Apply to remote cluster
+                k8sRemoteClient.applyYaml(parsedLocationsYaml);
+            }
         });
     }
 }

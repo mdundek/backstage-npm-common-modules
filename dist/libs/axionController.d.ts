@@ -1,3 +1,4 @@
+import { KubernetesClient } from './kubernetes';
 declare class AxionController {
     private k8sClient;
     private argoClient;
@@ -124,6 +125,19 @@ declare class AxionController {
     prepareArgoWorkflowDependencies(ctx: any, dnsEntity: any, nakedRepo: string, k8sSaToken: string, k8sHost: string, uidGen: string): Promise<{
         tmpCredsSecretName: string;
     }>;
+    /**
+     *
+     * @param ctx
+     * @param k8sRemoteClient
+     */
+    ensureArgoIsInstalled(ctx: any, k8sRemoteClient: KubernetesClient): Promise<void>;
+    /**
+     *
+     * @param ctx
+     * @param k8sBackstageClient
+     * @param k8sRemoteClient
+     */
+    deployAxionWorkflowTemplates(ctx: any, k8sBackstageClient: KubernetesClient, k8sRemoteClient: KubernetesClient): Promise<void>;
 }
 export { AxionController };
 //# sourceMappingURL=axionController.d.ts.map
