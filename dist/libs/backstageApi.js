@@ -67,8 +67,8 @@ exports.backstageApi = {
         return data.items;
     }),
     // Find entries with dependencies to this component
-    findSystemNeotekTypedComponents: (type, token) => __awaiter(void 0, void 0, void 0, function* () {
-        const url = `http://localhost:7007/api/catalog/entities/by-query?filter=metadata.annotations.neotek.ea.com/component-type=${type}`;
+    findSystemNeotekTypedComponents: (type, system, token) => __awaiter(void 0, void 0, void 0, function* () {
+        const url = `http://localhost:7007/api/catalog/entities/by-query?filter=metadata.annotations.neotek.ea.com/component-type=${type},spec.system=${system}`;
         const response = yield fetch(url, {
             method: 'GET',
             headers: {

@@ -71,9 +71,10 @@ export const backstageApi = {
     // Find entries with dependencies to this component
     findSystemNeotekTypedComponents: async (
         type: string,
+        system: string,
         token: string,
     ) => {
-        const url = `http://localhost:7007/api/catalog/entities/by-query?filter=metadata.annotations.neotek.ea.com/component-type=${type}`;
+        const url = `http://localhost:7007/api/catalog/entities/by-query?filter=metadata.annotations.neotek.ea.com/component-type=${type},spec.system=${system}`;
         const response = await fetch(url, {
             method: 'GET',
             headers: {
