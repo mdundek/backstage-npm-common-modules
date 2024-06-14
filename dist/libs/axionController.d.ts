@@ -106,7 +106,7 @@ declare class AxionController {
      * @param k8sHost
      * @param workflowFilePath
      */
-    prepareWorkflow(ctx: any, clusterEntity: any, dnsEntity: any, k8sHost: string, workflowFilePath: string): Promise<{
+    prepareWorkflow(ctx: any, clusterEntity: any, dnsEntity: any, k8sHost: string): Promise<{
         uidGen: string;
         workflowFilePath: string;
         workflowName: string;

@@ -489,8 +489,7 @@ fi`);
         ctx: any, 
         clusterEntity: any, 
         dnsEntity: any, 
-        k8sHost: string, 
-        workflowFilePath: string
+        k8sHost: string
     ) {
         // Generate a unique name for the workflow
         let uid = new ShortUniqueId({ length: 5 });
@@ -625,7 +624,7 @@ fi`);
         const yamlContent = yaml.dump(updatedWorkflow);
 
         uid = new ShortUniqueId({ length: 10 });
-        workflowFilePath = `./${uid.rnd()}-workflow-proxy.yaml`
+        const workflowFilePath = `./${uid.rnd()}-workflow-proxy.yaml`
 
         // Write the YAML content to the specified file
         await fs.writeFile(workflowFilePath, yamlContent, 'utf-8');

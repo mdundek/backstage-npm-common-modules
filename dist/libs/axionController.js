@@ -508,7 +508,7 @@ fi`);
      * @param k8sHost
      * @param workflowFilePath
      */
-    prepareWorkflow(ctx, clusterEntity, dnsEntity, k8sHost, workflowFilePath) {
+    prepareWorkflow(ctx, clusterEntity, dnsEntity, k8sHost) {
         return __awaiter(this, void 0, void 0, function* () {
             // Generate a unique name for the workflow
             let uid = new short_unique_id_1.default({ length: 5 });
@@ -628,7 +628,7 @@ fi`);
             // Convert the JSON object to YAML format
             const yamlContent = yaml.dump(updatedWorkflow);
             uid = new short_unique_id_1.default({ length: 10 });
-            workflowFilePath = `./${uid.rnd()}-workflow-proxy.yaml`;
+            const workflowFilePath = `./${uid.rnd()}-workflow-proxy.yaml`;
             // Write the YAML content to the specified file
             yield fs.writeFile(workflowFilePath, yamlContent, 'utf-8');
             return {
