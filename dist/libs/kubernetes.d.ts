@@ -13,7 +13,7 @@ declare class KubernetesClient {
      * @param body
      * @returns
      */
-    applyResource(path: string, body: any): Promise<any>;
+    applyResource(path: string, body: any, ignoreAlreadyExistError?: boolean): Promise<any>;
     /**
      *
      * @param secretName

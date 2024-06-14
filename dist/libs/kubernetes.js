@@ -45,7 +45,7 @@ class KubernetesClient {
      * @param body
      * @returns
      */
-    applyResource(path, body) {
+    applyResource(path, body, ignoreAlreadyExistError) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const response = yield fetchProxy(`${this.KUBE_API_SERVER}${path}`, {
@@ -57,8 +57,11 @@ class KubernetesClient {
                     body: JSON.stringify(body)
                 });
                 if (!response.ok) {
-                    const errorText = yield response.text();
-                    throw new Error(`Failed to apply workflow: ${errorText}`);
+                    if (ignoreAlreadyExistError && response.status != 409) {
+                        const errorText = yield response.text();
+                        throw new Error(`Failed to apply workflow: ${errorText}`);
+                    }
+                    return;
                 }
                 return yield response.json();
             }
