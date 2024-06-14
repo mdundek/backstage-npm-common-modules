@@ -1,3 +1,4 @@
+import * as yaml from 'js-yaml';
 
 const KUBE_API_SERVER = process.env.KUBE_API_SERVER;
 const SA_TOKEN = process.env.KUBE_API_SA_TOKEN;
@@ -158,6 +159,63 @@ class KubernetesClient {
 
         // Parse the response as JSON
         return await response.json();
+    }
+
+
+
+    public async deployRemoteYaml(
+        yamlLocalionUrl: string, 
+        targetNamespace: string
+    ) {
+        const clusterScopedKinds = new Set([
+            'Namespace', 'Node', 'PersistentVolume', 'CustomResourceDefinition',
+            'ClusterRole', 'ClusterRoleBinding', 'ValidatingWebhookConfiguration',
+            'MutatingWebhookConfiguration', 'APIService', 'PriorityClass'
+        ]);
+    
+    
+        // Fetch the YAML content from the URL
+        const response = await fetch(yamlLocalionUrl);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch YAML: ${response.statusText}`);
+        }
+        const yamlContent = await response.text();
+    
+        // Parse the YAML content
+        const resources: any = yaml.loadAll(yamlContent);
+        if (!resources || resources.length === 0) {
+            throw new Error('No resources found in YAML content.');
+        }
+    
+        // Apply each resource to the Kubernetes API
+        for (const resource of resources) {
+            if (resource) {
+                const { kind, apiVersion } = resource;
+                let apiPath = '';
+    
+                const apiKindLower = kind.toLowerCase();
+                if (clusterScopedKinds.has(kind)) {
+                    // Cluster-scoped resource
+                    if (apiVersion.startsWith('v1')) {
+                        apiPath = `/api/v1/${apiKindLower}${apiKindLower.endsWith("ss") ? "es":"s"}`;
+                    } else {
+                        const [group, version] = apiVersion.split('/');
+                        apiPath = `/apis/${group}/${version}/${apiKindLower}${apiKindLower.endsWith("ss") ? "es":"s"}`;
+                    }
+                } else {
+                    // Namespace-scoped resource
+                    
+                    if (apiVersion.startsWith('v1')) {
+                        apiPath = `/api/v1/namespaces/${targetNamespace}/${apiKindLower}${apiKindLower.endsWith("ss") ? "es":"s"}`;
+                    } else {
+                        const [group, version] = apiVersion.split('/');
+                        apiPath = `/apis/${group}/${version}/namespaces/${targetNamespace}/${apiKindLower}${apiKindLower.endsWith("ss") ? "es":"s"}`;
+                    }
+                }
+    
+                await this.applyResource(apiPath, resource, true)
+            }
+        }
     }
 }
 

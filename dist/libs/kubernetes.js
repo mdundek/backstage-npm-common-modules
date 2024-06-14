@@ -1,4 +1,27 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -10,6 +33,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.KubernetesClient = void 0;
+const yaml = __importStar(require("js-yaml"));
 const KUBE_API_SERVER = process.env.KUBE_API_SERVER;
 const SA_TOKEN = process.env.KUBE_API_SA_TOKEN;
 /**
@@ -162,6 +186,55 @@ class KubernetesClient {
             }
             // Parse the response as JSON
             return yield response.json();
+        });
+    }
+    deployRemoteYaml(yamlLocalionUrl, targetNamespace) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const clusterScopedKinds = new Set([
+                'Namespace', 'Node', 'PersistentVolume', 'CustomResourceDefinition',
+                'ClusterRole', 'ClusterRoleBinding', 'ValidatingWebhookConfiguration',
+                'MutatingWebhookConfiguration', 'APIService', 'PriorityClass'
+            ]);
+            // Fetch the YAML content from the URL
+            const response = yield fetch(yamlLocalionUrl);
+            if (!response.ok) {
+                throw new Error(`Failed to fetch YAML: ${response.statusText}`);
+            }
+            const yamlContent = yield response.text();
+            // Parse the YAML content
+            const resources = yaml.loadAll(yamlContent);
+            if (!resources || resources.length === 0) {
+                throw new Error('No resources found in YAML content.');
+            }
+            // Apply each resource to the Kubernetes API
+            for (const resource of resources) {
+                if (resource) {
+                    const { kind, apiVersion } = resource;
+                    let apiPath = '';
+                    const apiKindLower = kind.toLowerCase();
+                    if (clusterScopedKinds.has(kind)) {
+                        // Cluster-scoped resource
+                        if (apiVersion.startsWith('v1')) {
+                            apiPath = `/api/v1/${apiKindLower}${apiKindLower.endsWith("ss") ? "es" : "s"}`;
+                        }
+                        else {
+                            const [group, version] = apiVersion.split('/');
+                            apiPath = `/apis/${group}/${version}/${apiKindLower}${apiKindLower.endsWith("ss") ? "es" : "s"}`;
+                        }
+                    }
+                    else {
+                        // Namespace-scoped resource
+                        if (apiVersion.startsWith('v1')) {
+                            apiPath = `/api/v1/namespaces/${targetNamespace}/${apiKindLower}${apiKindLower.endsWith("ss") ? "es" : "s"}`;
+                        }
+                        else {
+                            const [group, version] = apiVersion.split('/');
+                            apiPath = `/apis/${group}/${version}/namespaces/${targetNamespace}/${apiKindLower}${apiKindLower.endsWith("ss") ? "es" : "s"}`;
+                        }
+                    }
+                    yield this.applyResource(apiPath, resource, true);
+                }
+            }
         });
     }
 }
