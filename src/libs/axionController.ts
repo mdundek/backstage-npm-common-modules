@@ -500,8 +500,7 @@ fi`);
         //       it queires the backstage Kube API to get the gitlab credentials,
         //       those are located on this cluster
         ctx.logger.info(' => Fetching Axion workflow from the Axion workflow repository...');
-        const workflow: any = await new ArgoClient().fetchWorkflowFromWorkflowRepo('axion/axion-install-proxy.yaml'/*, true, 'dev-extended'*/); // TODO: Updated!
-
+        const workflow: any = await new ArgoClient().fetchWorkflowFromWorkflowRepo('axion/axion-install-proxy.yaml');
         // Compute the arguments for the Axion installation
         ctx.logger.info(' => Preparing for Axion installation...');
 

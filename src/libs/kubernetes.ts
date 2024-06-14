@@ -167,7 +167,7 @@ class KubernetesClient {
      * @returns 
      */
     public async namespaceExists(namespace: string) {
-        const response = await fetchProxy(`${KUBE_API_SERVER}/api/v1/namespaces/${namespace}`, {
+        const response = await fetchProxy(`${this.KUBE_API_SERVER}/api/v1/namespaces/${namespace}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -188,7 +188,7 @@ class KubernetesClient {
      * @param namespace 
      */
     public async createNamespace(namespace: string) {
-        const response = await this.applyResource(`${KUBE_API_SERVER}/api/v1/namespaces`, {
+        const response = await this.applyResource(`${this.KUBE_API_SERVER}/api/v1/namespaces`, {
             apiVersion: "v1",
             kind: "Namespace",
             metadata: {
@@ -208,7 +208,7 @@ class KubernetesClient {
      * @returns 
      */
     public async hasDeployment(name: string, namespace: string) {
-        const response = await fetchProxy(`${KUBE_API_SERVER}/apis/apps/v1/namespaces/${namespace}/deployments/${name}`, {
+        const response = await fetchProxy(`${this.KUBE_API_SERVER}/apis/apps/v1/namespaces/${namespace}/deployments/${name}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',

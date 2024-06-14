@@ -195,7 +195,7 @@ class KubernetesClient {
      */
     namespaceExists(namespace) {
         return __awaiter(this, void 0, void 0, function* () {
-            const response = yield fetchProxy(`${KUBE_API_SERVER}/api/v1/namespaces/${namespace}`, {
+            const response = yield fetchProxy(`${this.KUBE_API_SERVER}/api/v1/namespaces/${namespace}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -219,7 +219,7 @@ class KubernetesClient {
      */
     createNamespace(namespace) {
         return __awaiter(this, void 0, void 0, function* () {
-            const response = yield this.applyResource(`${KUBE_API_SERVER}/api/v1/namespaces`, {
+            const response = yield this.applyResource(`${this.KUBE_API_SERVER}/api/v1/namespaces`, {
                 apiVersion: "v1",
                 kind: "Namespace",
                 metadata: {
@@ -240,7 +240,7 @@ class KubernetesClient {
      */
     hasDeployment(name, namespace) {
         return __awaiter(this, void 0, void 0, function* () {
-            const response = yield fetchProxy(`${KUBE_API_SERVER}/apis/apps/v1/namespaces/${namespace}/deployments/${name}`, {
+            const response = yield fetchProxy(`${this.KUBE_API_SERVER}/apis/apps/v1/namespaces/${namespace}/deployments/${name}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
