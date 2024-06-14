@@ -83,12 +83,12 @@ export const backstageApi = {
             }),
         });
 
-        console.log(response)
-
         if (!response.ok) {
             console.error(`Failed to add new URL: ${catalogYamlPath}`);
             throw new Error(`Failed to add new URL: ${catalogYamlPath}`);
         }
+
+        await backstageApi.refreshLocations(token);
     },
     refreshLocations: async (
         token: string,

@@ -77,11 +77,11 @@ exports.backstageApi = {
                 target: `${process.env.GITLAB_BACKSTAGE_CATALOG_BASE_URL}${catalogYamlPath}`
             }),
         });
-        console.log(response);
         if (!response.ok) {
             console.error(`Failed to add new URL: ${catalogYamlPath}`);
             throw new Error(`Failed to add new URL: ${catalogYamlPath}`);
         }
+        yield exports.backstageApi.refreshLocations(token);
     }),
     refreshLocations: (token) => __awaiter(void 0, void 0, void 0, function* () {
         const response = yield fetch("http://localhost:7007/api/catalog/refresh", {
