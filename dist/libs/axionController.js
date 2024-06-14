@@ -638,5 +638,44 @@ fi`);
             };
         });
     }
+    /**
+     * prepareArgoWorkflowDependencies
+     * @param ctx
+     * @param dnsEntity
+     * @param nakedRepo
+     * @param k8sSaToken
+     * @param k8sHost
+     * @param uidGen
+     * @returns
+     */
+    prepareArgoWorkflowDependencies(ctx, dnsEntity, nakedRepo, k8sSaToken, k8sHost, uidGen) {
+        return __awaiter(this, void 0, void 0, function* () {
+            // Create the Axion System namespace if it does not exist
+            yield this.createAxionSystemNamespace();
+            // Prepare the temporary secret for the Axion installation
+            yield this.prepareTemporarySecret(ctx.input.cloudCredentials, dnsEntity.spec.cloudProvider, ctx.input.ociAuthUsername, ctx.input.ociAuthToken, ctx.input.vaultTemporaryToken);
+            // Create the Argo Pull Secret if it does not exist
+            yield this.createArgoPullSecret(nakedRepo, ctx.input.ociAuthUsername, ctx.input.ociAuthToken);
+            // Create the Workflow Service Account if it does not exist
+            yield this.createArgoWorkflowAdminSa();
+            // Create temporary secret with target cluster creds that the proxy workflow can use to deploy the workflow to
+            const k8sClient = new kubernetes_1.KubernetesClient();
+            yield k8sClient.applyResource(`/api/v1/namespaces/backstage-system/secrets`, {
+                apiVersion: "v1",
+                data: {
+                    "token": Buffer.from(k8sSaToken).toString('base64'),
+                    "api": Buffer.from(k8sHost).toString('base64')
+                },
+                kind: "Secret",
+                metadata: {
+                    name: `tmp-${uidGen}`
+                },
+                type: "Opaque"
+            });
+            return {
+                tmpCredsSecretName: `tmp-${uidGen}`
+            };
+        });
+    }
 }
 exports.AxionController = AxionController;

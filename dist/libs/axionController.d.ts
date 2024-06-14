@@ -111,6 +111,19 @@ declare class AxionController {
         workflowFilePath: string;
         workflowName: string;
     }>;
+    /**
+     * prepareArgoWorkflowDependencies
+     * @param ctx
+     * @param dnsEntity
+     * @param nakedRepo
+     * @param k8sSaToken
+     * @param k8sHost
+     * @param uidGen
+     * @returns
+     */
+    prepareArgoWorkflowDependencies(ctx: any, dnsEntity: any, nakedRepo: string, k8sSaToken: string, k8sHost: string, uidGen: string): Promise<{
+        tmpCredsSecretName: string;
+    }>;
 }
 export { AxionController };
 //# sourceMappingURL=axionController.d.ts.map
