@@ -233,18 +233,32 @@ class KubernetesClient {
         yamlLocalionUrl: string, 
         targetNamespace: string
     ) {
-        const clusterScopedKinds = new Set([
-            'Namespace', 'Node', 'PersistentVolume', 'CustomResourceDefinition',
-            'ClusterRole', 'ClusterRoleBinding', 'ValidatingWebhookConfiguration',
-            'MutatingWebhookConfiguration', 'APIService', 'PriorityClass'
-        ]);
-    
         // Fetch the YAML content from the URL
         const response = await fetch(yamlLocalionUrl);
         if (!response.ok) {
             throw new Error(`Failed to fetch YAML: ${response.statusText}`);
         }
         const yamlContent = await response.text();
+    
+        // Parse the YAML content
+        await this.applyYaml(yamlContent, targetNamespace)
+    }
+
+    /**
+     * 
+     * @param yamlContent 
+     * @param targetNamespace 
+     */
+    public async applyYaml(
+        yamlContent: string, 
+        targetNamespace: string
+    ) {
+        const clusterScopedKinds = new Set([
+            'Namespace', 'Node', 'PersistentVolume', 'CustomResourceDefinition',
+            'ClusterRole', 'ClusterRoleBinding', 'ValidatingWebhookConfiguration',
+            'MutatingWebhookConfiguration', 'APIService', 'PriorityClass', 
+            'ClusterIssuer', 'ClusterSecretStore', 'ClusterExternalSecret'
+        ]);
     
         // Parse the YAML content
         const resources: any = yaml.loadAll(yamlContent);

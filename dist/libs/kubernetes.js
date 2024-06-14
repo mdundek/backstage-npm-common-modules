@@ -265,17 +265,29 @@ class KubernetesClient {
      */
     deployRemoteYaml(yamlLocalionUrl, targetNamespace) {
         return __awaiter(this, void 0, void 0, function* () {
-            const clusterScopedKinds = new Set([
-                'Namespace', 'Node', 'PersistentVolume', 'CustomResourceDefinition',
-                'ClusterRole', 'ClusterRoleBinding', 'ValidatingWebhookConfiguration',
-                'MutatingWebhookConfiguration', 'APIService', 'PriorityClass'
-            ]);
             // Fetch the YAML content from the URL
             const response = yield fetch(yamlLocalionUrl);
             if (!response.ok) {
                 throw new Error(`Failed to fetch YAML: ${response.statusText}`);
             }
             const yamlContent = yield response.text();
+            // Parse the YAML content
+            yield this.applyYaml(yamlContent, targetNamespace);
+        });
+    }
+    /**
+     *
+     * @param yamlContent
+     * @param targetNamespace
+     */
+    applyYaml(yamlContent, targetNamespace) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const clusterScopedKinds = new Set([
+                'Namespace', 'Node', 'PersistentVolume', 'CustomResourceDefinition',
+                'ClusterRole', 'ClusterRoleBinding', 'ValidatingWebhookConfiguration',
+                'MutatingWebhookConfiguration', 'APIService', 'PriorityClass',
+                'ClusterIssuer', 'ClusterSecretStore', 'ClusterExternalSecret'
+            ]);
             // Parse the YAML content
             const resources = yaml.loadAll(yamlContent);
             if (!resources || resources.length === 0) {

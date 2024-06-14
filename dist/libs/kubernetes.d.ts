@@ -67,6 +67,12 @@ declare class KubernetesClient {
      * @param targetNamespace
      */
     deployRemoteYaml(yamlLocalionUrl: string, targetNamespace: string): Promise<void>;
+    /**
+     *
+     * @param yamlContent
+     * @param targetNamespace
+     */
+    applyYaml(yamlContent: string, targetNamespace: string): Promise<void>;
 }
 export { KubernetesClient };
 //# sourceMappingURL=kubernetes.d.ts.map
