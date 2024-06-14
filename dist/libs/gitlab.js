@@ -80,4 +80,26 @@ exports.gitlab = {
             throw new Error(`Failed to check file: ${error.message}`);
         }
     }),
+    /**
+     *
+     * @param repositoryId
+     * @param folderPath
+     * @param branch
+     * @param personalAccessToken
+     * @returns
+     */
+    getFilesFromFolder: (repositoryId, folderPath, branch, personalAccessToken) => __awaiter(void 0, void 0, void 0, function* () {
+        const endpoint = `https://gitlab.ea.com/api/v4/projects/${encodeURIComponent(repositoryId)}/repository/tree?path=${encodeURIComponent(folderPath)}&ref=${branch}`;
+        const response = yield fetch(endpoint, {
+            method: 'GET',
+            headers: {
+                'PRIVATE-TOKEN': personalAccessToken
+            },
+        });
+        if (!response.ok) {
+            throw new Error('Failed to fetch folder content');
+        }
+        const files = yield response.json();
+        return files.filter((file) => file.type === 'blob'); // Filter to get only files, not directories
+    })
 };
