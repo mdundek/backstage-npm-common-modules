@@ -191,4 +191,36 @@ exports.gitlab = {
         // return gitResponse.http_url_to_repo
         return gitResponse;
     }),
+    /**
+     * deleteRepo
+     * @param groupName
+     * @param repoName
+     * @param personalAccessToken
+     */
+    deleteRepoIfExist: (groupName, repoName, personalAccessToken) => __awaiter(void 0, void 0, void 0, function* () {
+        const searchString = `${groupName}/${repoName}`;
+        const apiUrl = `https://gitlab.ea.com/api/v4/search?scope=projects&search=${encodeURIComponent(searchString)}`;
+        let response = yield fetch(apiUrl, {
+            headers: {
+                'Authorization': `Bearer ${personalAccessToken}`,
+            },
+        });
+        if (!response.ok) {
+            throw new Error(`Could not fetch the groups: ${yield response.text()}`);
+        }
+        const allProjects = yield response.json();
+        const targetProjectBlock = allProjects.find((project) => project.path_with_namespace == searchString || project.path_with_namespace.endsWith("/" + searchString));
+        if (targetProjectBlock) {
+            response = yield fetch(`https://gitlab.ea.com/api/v4/projects/${targetProjectBlock.id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${personalAccessToken}`,
+                }
+            });
+            if (!response.ok) {
+                throw new Error(`Could not delete the repository: ${yield response.text()}`);
+            }
+        }
+    })
 };

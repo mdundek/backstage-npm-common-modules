@@ -34,6 +34,13 @@ export declare const gitlab: {
      * @returns
      */
     createGitlabRepo: (options: CreateRepoOptions, personalAccessToken: string) => Promise<any>;
+    /**
+     * deleteRepo
+     * @param groupName
+     * @param repoName
+     * @param personalAccessToken
+     */
+    deleteRepoIfExist: (groupName: string, repoName: string, personalAccessToken: string) => Promise<void>;
 };
 export interface CreateRepoOptions {
     name: string;
