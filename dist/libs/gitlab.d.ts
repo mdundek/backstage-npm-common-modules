@@ -11,5 +11,34 @@ export declare const gitlab: {
      * @returns
      */
     getFilesFromFolder: (repositoryId: string, folderPath: string, branch: string, personalAccessToken: string) => Promise<any>;
+    /**
+     * getSubgroupIdByName
+     * @param search
+     * @param personalAccessToken
+     * @returns
+     */
+    getSubgroupIdByName: (search: string, personalAccessToken: string) => Promise<string>;
+    /**
+     * createGitlabRepoCiVar
+     * @param projectId
+     * @param personalAccessToken
+     * @param varKey
+     * @param varValue
+     * @param masked
+     */
+    createGitlabRepoCiVar: (projectId: string, personalAccessToken: string, varKey: string, varValue: string, masked: boolean) => Promise<void>;
+    /**
+     * createGitlabRepo
+     * @param options
+     * @param personalAccessToken
+     * @returns
+     */
+    createGitlabRepo: (options: CreateRepoOptions, personalAccessToken: string) => Promise<any>;
 };
+export interface CreateRepoOptions {
+    name: string;
+    namespaceId?: string;
+    description?: string;
+    visibility: string;
+}
 //# sourceMappingURL=gitlab.d.ts.map

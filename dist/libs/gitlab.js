@@ -101,5 +101,94 @@ exports.gitlab = {
         }
         const files = yield response.json();
         return files.filter((file) => file.type === 'blob').map((file) => file.path); // Filter to get only files, not directories
+    }),
+    /**
+     * getSubgroupIdByName
+     * @param search
+     * @param personalAccessToken
+     * @returns
+     */
+    getSubgroupIdByName: (search, personalAccessToken) => __awaiter(void 0, void 0, void 0, function* () {
+        const apiUrl = `https://gitlab.ea.com/api/v4/groups?search=${encodeURIComponent(search)}`;
+        const response = yield fetch(apiUrl, {
+            headers: {
+                'Authorization': `Bearer ${personalAccessToken}`,
+            },
+        });
+        if (!response.ok) {
+            throw new Error(`Could not fetch the groups: ${yield response.text()}`);
+        }
+        const groups = yield response.json();
+        const group = groups[0];
+        if (!group) {
+            throw new Error('Group not found');
+        }
+        return group.id;
+    }),
+    /**
+     * createGitlabRepoCiVar
+     * @param projectId
+     * @param personalAccessToken
+     * @param varKey
+     * @param varValue
+     * @param masked
+     */
+    createGitlabRepoCiVar: (projectId, personalAccessToken, varKey, varValue, masked) => __awaiter(void 0, void 0, void 0, function* () {
+        const response = yield fetch(`https://gitlab.ea.com/api/v4/projects/${projectId}/variables`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${personalAccessToken}`,
+            },
+            body: JSON.stringify({
+                key: varKey,
+                value: varValue,
+                masked: masked,
+            })
+        });
+        if (!response.ok) {
+            throw new Error(`Could not create the repo variable: ${yield response.text()}`);
+        }
+    }),
+    /**
+     * createGitlabRepo
+     * @param options
+     * @param personalAccessToken
+     * @returns
+     */
+    createGitlabRepo: (options, personalAccessToken) => __awaiter(void 0, void 0, void 0, function* () {
+        let body = null;
+        if (!options.namespaceId || options.namespaceId == null || options.namespaceId == "") {
+            body = JSON.stringify({
+                name: options.name,
+                description: options.description,
+                visibility: options.visibility,
+            });
+        }
+        else {
+            body = JSON.stringify({
+                name: options.name,
+                namespace_id: options.namespaceId,
+                description: options.description,
+                visibility: options.visibility,
+            });
+        }
+        /**
+         * Create a new GitLab repository
+         */
+        const response = yield fetch(`https://gitlab.ea.com/api/v4/projects`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${personalAccessToken}`,
+            },
+            body: body,
+        });
+        if (!response.ok) {
+            throw new Error(`Could not create the repository: ${yield response.text()}`);
+        }
+        let gitResponse = yield response.json();
+        // return gitResponse.http_url_to_repo
+        return gitResponse;
     })
 };
