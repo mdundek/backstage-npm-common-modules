@@ -1,12 +1,14 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.backstageApi = exports.gitlab = exports.KubernetesClient = exports.AxionController = exports.ArgoClient = exports.BackstageComponentRegistrar = void 0;
+exports.backstageApi = exports.gitlab = exports.KubernetesClient = exports.AmpController = exports.AxionController = exports.ArgoClient = exports.BackstageComponentRegistrar = void 0;
 var backstageRegistrar_1 = require("./libs/backstageRegistrar");
 Object.defineProperty(exports, "BackstageComponentRegistrar", { enumerable: true, get: function () { return backstageRegistrar_1.BackstageComponentRegistrar; } });
 var argo_1 = require("./libs/argo");
 Object.defineProperty(exports, "ArgoClient", { enumerable: true, get: function () { return argo_1.ArgoClient; } });
 var axionController_1 = require("./libs/axionController");
 Object.defineProperty(exports, "AxionController", { enumerable: true, get: function () { return axionController_1.AxionController; } });
+var ampController_1 = require("./libs/ampController");
+Object.defineProperty(exports, "AmpController", { enumerable: true, get: function () { return ampController_1.AmpController; } });
 var kubernetes_1 = require("./libs/kubernetes");
 Object.defineProperty(exports, "KubernetesClient", { enumerable: true, get: function () { return kubernetes_1.KubernetesClient; } });
 var gitlab_1 = require("./libs/gitlab");
