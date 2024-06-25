@@ -190,5 +190,5 @@ exports.gitlab = {
         let gitResponse = yield response.json();
         // return gitResponse.http_url_to_repo
         return gitResponse;
-    })
+    }),
 };

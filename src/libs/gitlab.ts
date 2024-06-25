@@ -229,7 +229,7 @@ export const gitlab = {
 
         // return gitResponse.http_url_to_repo
         return gitResponse
-    }
+    },
 };
 
 // Typescript interface for Create Repository options
