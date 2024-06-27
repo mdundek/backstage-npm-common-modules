@@ -173,9 +173,7 @@ export const gitlab = {
             throw new Error(`Could not fetch the groups: ${await response.text()}`);
         }
 
-        const groups = await response.json();
-        const group = groups[0];
-
+        const group = await response.json();
         if (!group) {
             throw new Error('Group not found');
         }

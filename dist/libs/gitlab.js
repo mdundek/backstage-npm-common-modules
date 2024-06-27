@@ -141,8 +141,7 @@ exports.gitlab = {
         if (!response.ok) {
             throw new Error(`Could not fetch the groups: ${yield response.text()}`);
         }
-        const groups = yield response.json();
-        const group = groups[0];
+        const group = yield response.json();
         if (!group) {
             throw new Error('Group not found');
         }
