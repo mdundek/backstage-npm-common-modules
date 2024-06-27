@@ -487,27 +487,45 @@ class AmpController {
      */
     public async createWorkflowScriptsConfigMap(ctx: any, k8sBackstageClient: KubernetesClient) {
         const tmpFolder = await fs.mkdtemp(path.join(os.tmpdir(), 'backstage-'));
+        try {
+            let secretValues = await k8sBackstageClient.getSecretValues('backstage-system', 'backstage-secrets');
+                
+            const workflowsRepoProjectId = secretValues["GITLAB_BACKSTAGE_WORKFLOWS_REPO_ID"];
+            const branchOrTag = 'main';
+            const personalAccessToken = secretValues.GITLAB_GROUP_BACKSTAGE_RW_TOKEN;
 
-        console.log("===========> TEMP FOLDER: " + tmpFolder)
+            let scriptsFiles = await gitlab.getFilesFromFolder(
+                workflowsRepoProjectId, 
+                "amp/scripts", 
+                branchOrTag, 
+                personalAccessToken
+            );
+            for(let scriptPath of scriptsFiles) {
+                const scriptCode = await gitlab.fetchFile(workflowsRepoProjectId, scriptPath, branchOrTag, personalAccessToken);
+                const b64Buffer = Buffer.from(scriptCode.content, 'base64');
 
+                fs.writeFile(path.join(tmpFolder, path.basename(scriptPath)), b64Buffer, 'utf-8');            
+            }
+            scriptsFiles = await gitlab.getFilesFromFolder(
+                workflowsRepoProjectId, 
+                "amp/scripts/libs", 
+                branchOrTag, 
+                personalAccessToken
+            );
+            for(let scriptPath of scriptsFiles) {
+                const scriptCode = await gitlab.fetchFile(workflowsRepoProjectId, scriptPath, branchOrTag, personalAccessToken);
+                const b64Buffer = Buffer.from(scriptCode.content, 'base64');
 
-        let secretValues = await k8sBackstageClient.getSecretValues('backstage-system', 'backstage-secrets');
-			
-        const workflowsRepoProjectId = secretValues["GITLAB_BACKSTAGE_WORKFLOWS_REPO_ID"];
-        const branchOrTag = 'main';
-        const personalAccessToken = secretValues.GITLAB_GROUP_BACKSTAGE_RW_TOKEN;
+                fs.writeFile(path.join(tmpFolder, path.basename(scriptPath)), b64Buffer, 'utf-8');            
+            }
 
-        const scriptsFiles = await gitlab.getFilesFromFolder(
-            workflowsRepoProjectId, 
-            "amp/scripts", 
-            branchOrTag, 
-            personalAccessToken
-        );
-        for(let scriptPath of scriptsFiles) {
-            const scriptCode = await gitlab.fetchFile(workflowsRepoProjectId, scriptPath, branchOrTag, personalAccessToken);
-            const b64Buffer = Buffer.from(scriptCode.content, 'base64');
+            // Create ConfigMap from files
+            const files = await fs.readdir(tmpFolder);
+            console.log(files)
 
-            fs.writeFile(path.join(tmpFolder, path.basename(scriptPath)), b64Buffer, 'utf-8');            
+        } finally {
+            console.log("===========> TEMP FOLDER: " + tmpFolder)
+            console.log("Will clean up temp stuff once this function is ready")
         }
     }
 }
