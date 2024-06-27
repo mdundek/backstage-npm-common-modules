@@ -9,6 +9,9 @@ import ShortUniqueId from 'short-unique-id';
 import * as fs from 'fs/promises';
 import * as yaml from 'js-yaml';
 
+const KUBE_API_SERVER = process.env.KUBE_API_SERVER || 'https://kubernetes.default.svc';
+const SA_TOKEN = process.env.KUBE_API_SA_TOKEN || '';
+
 /**
  * fetchProxy
  * @param url 
@@ -35,9 +38,9 @@ class AmpController {
      * @param k8sHost 
      * @param k8sSaToken 
      */
-    constructor(k8sHost: string, k8sSaToken: string) {
-        this.k8sClient = new KubernetesClient(k8sHost, k8sSaToken)
-        this.argoClient = new ArgoClient(k8sHost, k8sSaToken)
+    constructor(k8sHost?: string, k8sSaToken?: string) {
+        this.k8sClient = new KubernetesClient(k8sHost || KUBE_API_SERVER, k8sSaToken || SA_TOKEN)
+        this.argoClient = new ArgoClient(k8sHost || KUBE_API_SERVER, k8sSaToken || SA_TOKEN)
     }
 
     /**

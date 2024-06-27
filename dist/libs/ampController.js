@@ -43,6 +43,8 @@ const os = __importStar(require("os"));
 const path = __importStar(require("path"));
 const short_unique_id_1 = __importDefault(require("short-unique-id"));
 const fs = __importStar(require("fs/promises"));
+const KUBE_API_SERVER = process.env.KUBE_API_SERVER || 'https://kubernetes.default.svc';
+const SA_TOKEN = process.env.KUBE_API_SA_TOKEN || '';
 /**
  * fetchProxy
  * @param url
@@ -67,8 +69,8 @@ class AmpController {
      * @param k8sSaToken
      */
     constructor(k8sHost, k8sSaToken) {
-        this.k8sClient = new kubernetes_1.KubernetesClient(k8sHost, k8sSaToken);
-        this.argoClient = new argo_1.ArgoClient(k8sHost, k8sSaToken);
+        this.k8sClient = new kubernetes_1.KubernetesClient(k8sHost || KUBE_API_SERVER, k8sSaToken || SA_TOKEN);
+        this.argoClient = new argo_1.ArgoClient(k8sHost || KUBE_API_SERVER, k8sSaToken || SA_TOKEN);
     }
     /**
      * prepareTemporarySecret

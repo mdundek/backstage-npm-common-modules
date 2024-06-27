@@ -7,7 +7,7 @@ declare class AmpController {
      * @param k8sHost
      * @param k8sSaToken
      */
-    constructor(k8sHost: string, k8sSaToken: string);
+    constructor(k8sHost?: string, k8sSaToken?: string);
     /**
      * prepareTemporarySecret
      * @param cloudCredentials
