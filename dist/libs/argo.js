@@ -115,15 +115,16 @@ class ArgoClient {
                         if (proxied)
                             line = line.substring(line.indexOf(":") + 1);
                         allLogs.push(line);
-                        if (pattern1.test(line)) {
-                            logger.info("");
-                            logger.info(` ${line.substring(line.indexOf(":") + 1, line.length).trim()}`);
-                            resetLogTimeout();
-                        }
-                        else if (pattern2.test(line)) {
-                            logger.info(` ${line.substring(line.indexOf(":") + 1, line.length).trim()}`);
-                            resetLogTimeout();
-                        }
+                        logger.info(line);
+                        // if (pattern1.test(line)) {
+                        //     logger.info("")
+                        //     logger.info(` ${line.substring(line.indexOf(":")+1, line.length).trim()}`);
+                        //     resetLogTimeout();
+                        // }
+                        // else if (pattern2.test(line)) {
+                        //     logger.info(` ${line.substring(line.indexOf(":")+1, line.length).trim()}`);
+                        //     resetLogTimeout();
+                        // }
                     });
                 });
                 childProcess.stderr.on('data', (data) => {
