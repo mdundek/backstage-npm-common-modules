@@ -19,6 +19,13 @@ export declare const gitlab: {
      */
     getSubgroupIdByName: (search: string, personalAccessToken: string) => Promise<string>;
     /**
+     * getSubgroupIdByName
+     * @param search
+     * @param personalAccessToken
+     * @returns
+     */
+    getGroupNameByGroupId: (groupId: string, personalAccessToken: string) => Promise<string>;
+    /**
      * createGitlabRepoCiVar
      * @param projectId
      * @param personalAccessToken

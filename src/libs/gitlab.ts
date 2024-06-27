@@ -117,6 +117,7 @@ export const gitlab = {
 
         return files.filter((file: any) => file.type === 'blob').map((file: any) => file.path); // Filter to get only files, not directories
     },
+    
 
     /**
      * getSubgroupIdByName
@@ -148,6 +149,38 @@ export const gitlab = {
         }
 
         return group.id;
+    },
+
+    /**
+     * getSubgroupIdByName
+     * @param search 
+     * @param personalAccessToken 
+     * @returns 
+     */
+    getGroupNameByGroupId: async (
+        groupId: string,
+        personalAccessToken: string,
+    ): Promise<string> => {
+        const apiUrl = `https://gitlab.ea.com/api/v4/groups/${groupId}`;
+
+        const response = await fetch(apiUrl, {
+            headers: {
+                'Authorization': `Bearer ${personalAccessToken}`,
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error(`Could not fetch the groups: ${await response.text()}`);
+        }
+
+        const groups = await response.json();
+        const group = groups[0];
+
+        if (!group) {
+            throw new Error('Group not found');
+        }
+
+        return group.name;
     },
 
     /**

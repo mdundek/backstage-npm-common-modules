@@ -126,6 +126,29 @@ exports.gitlab = {
         return group.id;
     }),
     /**
+     * getSubgroupIdByName
+     * @param search
+     * @param personalAccessToken
+     * @returns
+     */
+    getGroupNameByGroupId: (groupId, personalAccessToken) => __awaiter(void 0, void 0, void 0, function* () {
+        const apiUrl = `https://gitlab.ea.com/api/v4/groups/${groupId}`;
+        const response = yield fetch(apiUrl, {
+            headers: {
+                'Authorization': `Bearer ${personalAccessToken}`,
+            },
+        });
+        if (!response.ok) {
+            throw new Error(`Could not fetch the groups: ${yield response.text()}`);
+        }
+        const groups = yield response.json();
+        const group = groups[0];
+        if (!group) {
+            throw new Error('Group not found');
+        }
+        return group.name;
+    }),
+    /**
      * createGitlabRepoCiVar
      * @param projectId
      * @param personalAccessToken
