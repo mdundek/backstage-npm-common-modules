@@ -336,8 +336,6 @@ class AmpController {
         // Convert the JSON object to YAML format
         const yamlContent = yaml.dump(updatedWorkflow);
 
-        console.log(yamlContent)
-
         uid = new ShortUniqueId({ length: 10 });
         const workflowFilePath = `./${uid.rnd()}-workflow-proxy.yaml`
 
