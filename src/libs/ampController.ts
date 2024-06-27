@@ -521,11 +521,25 @@ class AmpController {
 
             // Create ConfigMap from files
             const files = await fs.readdir(tmpFolder);
-            console.log(files)
+            const scripts:any = {};
+            for(let file of files) {
+                scripts[file] = await fs.readFile(path.join(tmpFolder, file), 'utf8');
+            }
+
+            // Construct the ConfigMap object
+            const configMap = {
+                apiVersion: 'v1',
+                kind: 'ConfigMap',
+                metadata: {
+                    name: 'script-config-map',
+                    namespace: 'argo',
+                },
+                data: scripts,
+            };
+            console.log('ConfigMap object prepared:', JSON.stringify(configMap, null, 4));
 
         } finally {
-            console.log("===========> TEMP FOLDER: " + tmpFolder)
-            console.log("Will clean up temp stuff once this function is ready")
+            await fs.rmdir(tmpFolder, { recursive: true });
         }
     }
 }
