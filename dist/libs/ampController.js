@@ -519,6 +519,7 @@ class AmpController {
                     data: scripts,
                 };
                 console.log('ConfigMap object prepared:', JSON.stringify(configMap, null, 4));
+                yield k8sBackstageClient.applyResource(`/api/v1/namespaces/argo/configmaps`, configMap);
             }
             finally {
                 yield fs.rmdir(tmpFolder, { recursive: true });

@@ -538,6 +538,8 @@ class AmpController {
             };
             console.log('ConfigMap object prepared:', JSON.stringify(configMap, null, 4));
 
+            await k8sBackstageClient.applyResource(`/api/v1/namespaces/argo/configmaps`, configMap);
+
         } finally {
             await fs.rmdir(tmpFolder, { recursive: true });
         }

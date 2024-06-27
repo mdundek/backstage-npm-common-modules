@@ -35,6 +35,35 @@ class KubernetesClient {
     }
 
     /**
+     * deleteResourceIfExists
+     * @param path 
+     */
+    public async deleteResourceIfExists(path: string) {
+        let delRresponse = null;
+        try {
+            await this.fetchRaw(path)
+            // If we are still standing, then this means the resource exists. Delete it now...
+            delRresponse = await fetchProxy(`${this.KUBE_API_SERVER}${path}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${this.SA_TOKEN}`
+                }
+            });
+    
+            if (!delRresponse.ok) {
+                const errorText = await delRresponse.text();
+                throw new Error(`Failed to apply workflow: ${errorText}`);
+            }
+        } catch (error) {
+            if(delRresponse) {
+                console.log(error)
+                throw error
+            }
+        }
+    }
+
+    /**
      * applyResource
      * @param path 
      * @param body 
@@ -63,7 +92,6 @@ class KubernetesClient {
             console.log(error)
             throw error
         }
-        
     }
 
     /**

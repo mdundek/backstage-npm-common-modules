@@ -8,6 +8,11 @@ declare class KubernetesClient {
      */
     constructor(host?: string, token?: string);
     /**
+     * deleteResourceIfExists
+     * @param path
+     */
+    deleteResourceIfExists(path: string): Promise<void>;
+    /**
      * applyResource
      * @param path
      * @param body

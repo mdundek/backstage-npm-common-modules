@@ -64,6 +64,36 @@ class KubernetesClient {
         this.SA_TOKEN = token || SA_TOKEN;
     }
     /**
+     * deleteResourceIfExists
+     * @param path
+     */
+    deleteResourceIfExists(path) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let delRresponse = null;
+            try {
+                yield this.fetchRaw(path);
+                // If we are still standing, then this means the resource exists. Delete it now...
+                delRresponse = yield fetchProxy(`${this.KUBE_API_SERVER}${path}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${this.SA_TOKEN}`
+                    }
+                });
+                if (!delRresponse.ok) {
+                    const errorText = yield delRresponse.text();
+                    throw new Error(`Failed to apply workflow: ${errorText}`);
+                }
+            }
+            catch (error) {
+                if (delRresponse) {
+                    console.log(error);
+                    throw error;
+                }
+            }
+        });
+    }
+    /**
      * applyResource
      * @param path
      * @param body
