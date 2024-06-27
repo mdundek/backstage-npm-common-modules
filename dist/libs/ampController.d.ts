@@ -1,4 +1,3 @@
-import { KubernetesClient } from './kubernetes';
 declare class AmpController {
     private k8sClient;
     private argoClient;
@@ -14,7 +13,7 @@ declare class AmpController {
      * @param cloudProvider
      * @param gitlabAuthToken
      */
-    prepareTemporarySecret(cloudCredentials: string, cloudProvider: string, gitlabAuthToken: string): Promise<void>;
+    prepareTemporarySecret(cloudCredentials: string, gitlabGroupAuthToken: string, cloudProvider: string, gcpRegion: string): Promise<void>;
     /**
      *
      * @param clusterEntity
@@ -72,13 +71,13 @@ declare class AmpController {
      * @param dnsEntity
      * @returns
      */
-    prepareArgoWorkflowDependencies(ctx: any, dnsEntity: any): Promise<void>;
+    prepareArgoWorkflowDependencies(ctx: any, cloudProvider: string, gcpRegion: string): Promise<void>;
     /**
      *
      * @param ctx
      * @param k8sBackstageClient
      */
-    createWorkflowScriptsConfigMap(ctx: any, k8sBackstageClient: KubernetesClient): Promise<void>;
+    private createWorkflowScriptsConfigMap;
 }
 export { AmpController };
 //# sourceMappingURL=ampController.d.ts.map

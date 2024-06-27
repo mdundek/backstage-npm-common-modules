@@ -49,7 +49,12 @@ class AmpController {
      * @param cloudProvider 
      * @param gitlabAuthToken 
      */
-    public async prepareTemporarySecret(cloudCredentials: string, cloudProvider: string, gitlabAuthToken: string) {
+    public async prepareTemporarySecret(
+        cloudCredentials: string,
+        gitlabGroupAuthToken: string,
+        cloudProvider: string,
+        gcpRegion: string
+    ) {
         // Make sure we remove secret if it exists first
         try {
             await this.k8sClient.fetchSecret("temporary-amp-credentials", "amp-system")
@@ -61,9 +66,9 @@ class AmpController {
             apiVersion: "v1",
             data: {
                 "TARGET_CLOUD": Buffer.from(cloudProvider).toString('base64'),
-                "GCP_REGION": Buffer.from("us-west1").toString('base64'),
+                "GCP_REGION": Buffer.from(gcpRegion).toString('base64'),
                 "GCP_JSON_KEY": Buffer.from(cloudCredentials).toString('base64'),
-                "GITLAB_TOKEN": Buffer.from(gitlabAuthToken).toString('base64')
+                "GITLAB_TOKEN": Buffer.from(gitlabGroupAuthToken).toString('base64')
             },
             kind: "Secret",
             metadata: {
@@ -467,16 +472,20 @@ class AmpController {
      */
     public async prepareArgoWorkflowDependencies(
         ctx: any, 
-        dnsEntity: any
+        cloudProvider: string,
+        gcpRegion: string
     ) {
+        await this.createWorkflowScriptsConfigMap(ctx)
+
         // Create the Amp System namespace if it does not exist
         await this.createAmpSystemNamespace();
 
         // Prepare the temporary secret for the Amp installation
         await this.prepareTemporarySecret(
             ctx.input.cloudCredentials,
-            dnsEntity.spec.cloudProvider,
-            ctx.input.gitlabGroupAuthToken
+            ctx.input.gitlabGroupAuthToken,
+            cloudProvider,
+            gcpRegion,
         )
     }
 
@@ -485,10 +494,11 @@ class AmpController {
      * @param ctx 
      * @param k8sBackstageClient 
      */
-    public async createWorkflowScriptsConfigMap(ctx: any, k8sBackstageClient: KubernetesClient) {
+    private async createWorkflowScriptsConfigMap(ctx: any) {
         const tmpFolder = await fs.mkdtemp(path.join(os.tmpdir(), 'backstage-'));
         try {
-            let secretValues = await k8sBackstageClient.getSecretValues('backstage-system', 'backstage-secrets');
+            ctx.logger.info(' => Fetching scripts from the workflows repository...');
+            let secretValues = await this.k8sClient.getSecretValues('backstage-system', 'backstage-secrets');
                 
             const workflowsRepoProjectId = secretValues["GITLAB_BACKSTAGE_WORKFLOWS_REPO_ID"];
             const branchOrTag = 'main';
@@ -520,6 +530,7 @@ class AmpController {
             }
 
             // Create ConfigMap from files
+            ctx.logger.info(' => Creating ConfigMap from scripts for workflow...');
             const files = await fs.readdir(tmpFolder);
             const scripts:any = {};
             for(let file of files) {
@@ -536,8 +547,8 @@ class AmpController {
                 },
                 data: scripts,
             };
-            await k8sBackstageClient.deleteResourceIfExists(`/api/v1/namespaces/argo/configmaps/script-config-map`);
-            await k8sBackstageClient.applyResource(`/api/v1/namespaces/argo/configmaps`, configMap);
+            await this.k8sClient.deleteResourceIfExists(`/api/v1/namespaces/argo/configmaps/script-config-map`);
+            await this.k8sClient.applyResource(`/api/v1/namespaces/argo/configmaps`, configMap);
         } finally {
             await fs.rmdir(tmpFolder, { recursive: true });
         }
