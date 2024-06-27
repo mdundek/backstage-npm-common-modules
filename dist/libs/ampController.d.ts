@@ -15,19 +15,24 @@ declare class AmpController {
      */
     prepareTemporarySecret(cloudCredentials: string, gitlabGroupAuthToken: string, cloudProvider: string, gcpRegion: string): Promise<void>;
     /**
-     *
-     * @param clusterEntity
-     * @param dnsEntity
-     * @param gcpProjectId
-     * @param ctx
+     * computeArgumentsFile
+     * @param ampGitlabGroupId
+     * @param projectTitleName
+     * @param projectDnsName
+     * @param teamMailingListEmail
+     * @param dnsRootDomain
+     * @param ampDataGitRepoUrl
+     * @param ampCodeGitRepoUrl
      * @returns
      */
+    computeArgumentsFile(ampGitlabGroupId: string, projectTitleName: string, projectDnsName: string, teamMailingListEmail: string, dnsRootDomain: string, ampDataGitRepoUrl: string, ampCodeGitRepoUrl: string): any;
     /**
      *
      * @param workflow
      * @param replacements
      * @returns
      */
+    updateWorkflowSpecArguments(workflow: any, replacements: any): any;
     /**
      *
      * @param ctx
@@ -64,7 +69,11 @@ declare class AmpController {
      * @param k8sHost
      * @param workflowFilePath
      */
-    prepareWorkflow(ctx: any, clusterEntity: any, dnsEntity: any, k8sHost: string): Promise<void>;
+    prepareWorkflow(ctx: any, dnsRootDomain: string, ampDataGitRepoUrl: string, ampCodeGitRepoUrl: string): Promise<{
+        uidGen: string;
+        workflowFilePath: string;
+        workflowName: string;
+    }>;
     /**
      * prepareArgoWorkflowDependencies
      * @param ctx
