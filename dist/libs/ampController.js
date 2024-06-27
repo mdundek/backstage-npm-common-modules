@@ -1,4 +1,27 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -15,7 +38,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AmpController = void 0;
 const kubernetes_1 = require("./kubernetes");
 const argo_1 = require("./argo");
+const gitlab_1 = require("./gitlab");
+const os = __importStar(require("os"));
+const path = __importStar(require("path"));
 const short_unique_id_1 = __importDefault(require("short-unique-id"));
+const fs = __importStar(require("fs/promises"));
 /**
  * fetchProxy
  * @param url
@@ -446,6 +473,27 @@ class AmpController {
             yield this.createAmpSystemNamespace();
             // Prepare the temporary secret for the Amp installation
             yield this.prepareTemporarySecret(ctx.input.cloudCredentials, dnsEntity.spec.cloudProvider, ctx.input.gitlabGroupAuthToken);
+        });
+    }
+    /**
+     *
+     * @param ctx
+     * @param k8sBackstageClient
+     */
+    createWorkflowScriptsConfigMap(ctx, k8sBackstageClient) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const tmpFolder = yield fs.mkdtemp(path.join(os.tmpdir(), 'backstage-'));
+            console.log("===========> TEMP FOLDER: " + tmpFolder);
+            let secretValues = yield k8sBackstageClient.getSecretValues('backstage-system', 'backstage-secrets');
+            const workflowsRepoProjectId = secretValues["GITLAB_BACKSTAGE_WORKFLOWS_REPO_ID"];
+            const branchOrTag = 'main';
+            const personalAccessToken = secretValues.GITLAB_GROUP_BACKSTAGE_RW_TOKEN;
+            const scriptsFiles = yield gitlab_1.gitlab.getFilesFromFolder(workflowsRepoProjectId, "amp/scripts", branchOrTag, personalAccessToken);
+            for (let scriptPath of scriptsFiles) {
+                const scriptCode = yield gitlab_1.gitlab.fetchFile(workflowsRepoProjectId, scriptPath, branchOrTag, personalAccessToken);
+                const b64Buffer = Buffer.from(scriptCode.content, 'base64');
+                fs.writeFile(path.join(tmpFolder, path.basename(scriptPath)), b64Buffer, 'utf-8');
+            }
         });
     }
 }

@@ -1,3 +1,4 @@
+import { KubernetesClient } from './kubernetes';
 declare class AmpController {
     private k8sClient;
     private argoClient;
@@ -72,6 +73,12 @@ declare class AmpController {
      * @returns
      */
     prepareArgoWorkflowDependencies(ctx: any, dnsEntity: any): Promise<void>;
+    /**
+     *
+     * @param ctx
+     * @param k8sBackstageClient
+     */
+    createWorkflowScriptsConfigMap(ctx: any, k8sBackstageClient: KubernetesClient): Promise<void>;
 }
 export { AmpController };
 //# sourceMappingURL=ampController.d.ts.map

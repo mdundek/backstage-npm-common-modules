@@ -482,29 +482,31 @@ class AmpController {
      * @param ctx 
      * @param k8sBackstageClient 
      */
-    // public async deployAxionWorkflowTemplates(ctx: any, k8sBackstageClient: KubernetesClient) {
-    //     let secretValues = await k8sBackstageClient.getSecretValues('backstage-system', 'backstage-secrets');
-			
-    //     const workflowsRepoProjectId = secretValues["GITLAB_AXION_WORKFLOWS_REPO_ID"];
-    //     const branchOrTag = 'dev-extended';
-    //     const personalAccessToken = secretValues.GITLAB_GROUP_BACKSTAGE_RW_TOKEN;
+    public async createWorkflowScriptsConfigMap(ctx: any, k8sBackstageClient: KubernetesClient) {
+        const tmpFolder = await fs.mkdtemp(path.join(os.tmpdir(), 'backstage-'));
 
-    //     const templateFiles = await gitlab.getFilesFromFolder(
-    //         workflowsRepoProjectId, 
-    //         "axion-argo-workflow/releases/latest/workflow/templates", 
-    //         branchOrTag, 
-    //         personalAccessToken
-    //     );
-    //     for(let templatePath of templateFiles) {
-    //         const templateYaml = await gitlab.fetchFile(workflowsRepoProjectId, templatePath, branchOrTag, personalAccessToken);
-    //         const b64Buffer = Buffer.from(templateYaml.content, 'base64');
-    //         // Parse the YAML content
-    //         let parsedLocationsYaml = yaml.load(b64Buffer.toString('utf-8')) as any;
-    //         ctx.logger.info(` => Applying template ${templatePath}...`);
-    //         // Apply to remote cluster
-    //         this.k8sClient.applyYaml(parsedLocationsYaml)
-    //     }
-    // }
+        console.log("===========> TEMP FOLDER: " + tmpFolder)
+
+
+        let secretValues = await k8sBackstageClient.getSecretValues('backstage-system', 'backstage-secrets');
+			
+        const workflowsRepoProjectId = secretValues["GITLAB_BACKSTAGE_WORKFLOWS_REPO_ID"];
+        const branchOrTag = 'main';
+        const personalAccessToken = secretValues.GITLAB_GROUP_BACKSTAGE_RW_TOKEN;
+
+        const scriptsFiles = await gitlab.getFilesFromFolder(
+            workflowsRepoProjectId, 
+            "amp/scripts", 
+            branchOrTag, 
+            personalAccessToken
+        );
+        for(let scriptPath of scriptsFiles) {
+            const scriptCode = await gitlab.fetchFile(workflowsRepoProjectId, scriptPath, branchOrTag, personalAccessToken);
+            const b64Buffer = Buffer.from(scriptCode.content, 'base64');
+
+            fs.writeFile(path.join(tmpFolder, path.basename(scriptPath)), b64Buffer, 'utf-8');            
+        }
+    }
 }
 
 export { AmpController };
