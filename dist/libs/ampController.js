@@ -518,7 +518,7 @@ class AmpController {
                     },
                     data: scripts,
                 };
-                console.log('ConfigMap object prepared:', JSON.stringify(configMap, null, 4));
+                yield k8sBackstageClient.deleteResourceIfExists(`/api/v1/namespaces/argo/configmaps/script-config-map`);
                 yield k8sBackstageClient.applyResource(`/api/v1/namespaces/argo/configmaps`, configMap);
             }
             finally {
