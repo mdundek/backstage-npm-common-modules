@@ -20,12 +20,13 @@ declare class AmpController {
      * @param projectTitleName
      * @param projectDnsName
      * @param teamMailingListEmail
-     * @param dnsRootDomain
+     * @param devDnsRootDomain
+     * @param intDnsRootDomain
      * @param ampDataGitRepoUrl
      * @param ampCodeGitRepoUrl
      * @returns
      */
-    computeArgumentsFile(ampGitlabGroupId: string, projectTitleName: string, projectDnsName: string, teamMailingListEmail: string, dnsRootDomain: string, ampDataGitRepoUrl: string, ampCodeGitRepoUrl: string): any;
+    computeArgumentsFile(ampGitlabGroupId: string, projectTitleName: string, projectDnsName: string, teamMailingListEmail: string, devDnsRootDomain: string, intDnsRootDomain: string, ampDataGitRepoUrl: string, ampCodeGitRepoUrl: string): any;
     /**
      *
      * @param workflow
@@ -62,14 +63,15 @@ declare class AmpController {
      * @returns
      */
     /**
-     *
+     * prepareWorkflow
      * @param ctx
-     * @param clusterEntity
-     * @param dnsEntity
-     * @param k8sHost
-     * @param workflowFilePath
+     * @param devDnsRootDomain
+     * @param intDnsRootDomain
+     * @param ampDataGitRepoUrl
+     * @param ampCodeGitRepoUrl
+     * @returns
      */
-    prepareWorkflow(ctx: any, dnsRootDomain: string, ampDataGitRepoUrl: string, ampCodeGitRepoUrl: string): Promise<{
+    prepareWorkflow(ctx: any, devDnsRootDomain: string, intDnsRootDomain: string, ampDataGitRepoUrl: string, ampCodeGitRepoUrl: string): Promise<{
         uidGen: string;
         workflowFilePath: string;
         workflowName: string;

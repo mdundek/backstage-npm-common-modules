@@ -84,7 +84,8 @@ class AmpController {
      * @param projectTitleName 
      * @param projectDnsName 
      * @param teamMailingListEmail 
-     * @param dnsRootDomain 
+     * @param devDnsRootDomain 
+     * @param intDnsRootDomain 
      * @param ampDataGitRepoUrl 
      * @param ampCodeGitRepoUrl 
      * @returns 
@@ -94,7 +95,8 @@ class AmpController {
         projectTitleName: string,
         projectDnsName: string,
         teamMailingListEmail: string,
-        dnsRootDomain: string,
+        devDnsRootDomain: string,
+        intDnsRootDomain: string,
         ampDataGitRepoUrl: string,
         ampCodeGitRepoUrl: string,
     ): any {
@@ -104,7 +106,8 @@ class AmpController {
             "projectTitleName": projectTitleName,
             "projectDnsName": projectDnsName,
             "teamMailingListEmail": teamMailingListEmail,
-            "dnsRootDomain": dnsRootDomain,
+            "devDnsRootDomain": devDnsRootDomain,
+            "intDnsRootDomain": intDnsRootDomain,
             "ampDataGitRepoUrl": ampDataGitRepoUrl,
             "ampCodeGitRepoUrl": ampCodeGitRepoUrl,
             "tempSecretName": "temporary-amp-credentials",
@@ -291,16 +294,18 @@ class AmpController {
     // }
 
     /**
-     * 
+     * prepareWorkflow
      * @param ctx 
-     * @param clusterEntity 
-     * @param dnsEntity 
-     * @param k8sHost 
-     * @param workflowFilePath 
+     * @param devDnsRootDomain 
+     * @param intDnsRootDomain 
+     * @param ampDataGitRepoUrl 
+     * @param ampCodeGitRepoUrl 
+     * @returns 
      */
     public async prepareWorkflow(
         ctx: any, 
-        dnsRootDomain: string,
+        devDnsRootDomain: string,
+        intDnsRootDomain: string,
         ampDataGitRepoUrl: string,
         ampCodeGitRepoUrl: string
     ) {
@@ -323,7 +328,8 @@ class AmpController {
             ctx.input.projectTitle,
             ctx.input.projectName,
             ctx.input.teamMailingList,
-            dnsRootDomain,
+            devDnsRootDomain,
+            intDnsRootDomain,
             ampDataGitRepoUrl,
             ampCodeGitRepoUrl,
         );

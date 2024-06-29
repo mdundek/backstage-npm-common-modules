@@ -110,19 +110,21 @@ class AmpController {
      * @param projectTitleName
      * @param projectDnsName
      * @param teamMailingListEmail
-     * @param dnsRootDomain
+     * @param devDnsRootDomain
+     * @param intDnsRootDomain
      * @param ampDataGitRepoUrl
      * @param ampCodeGitRepoUrl
      * @returns
      */
-    computeArgumentsFile(ampGitlabGroupId, projectTitleName, projectDnsName, teamMailingListEmail, dnsRootDomain, ampDataGitRepoUrl, ampCodeGitRepoUrl) {
+    computeArgumentsFile(ampGitlabGroupId, projectTitleName, projectDnsName, teamMailingListEmail, devDnsRootDomain, intDnsRootDomain, ampDataGitRepoUrl, ampCodeGitRepoUrl) {
         // Prepare the Argo Workflow arguments for the Axion installation
         const args = {
             "ampGitlabGroupId": ampGitlabGroupId,
             "projectTitleName": projectTitleName,
             "projectDnsName": projectDnsName,
             "teamMailingListEmail": teamMailingListEmail,
-            "dnsRootDomain": dnsRootDomain,
+            "devDnsRootDomain": devDnsRootDomain,
+            "intDnsRootDomain": intDnsRootDomain,
             "ampDataGitRepoUrl": ampDataGitRepoUrl,
             "ampCodeGitRepoUrl": ampCodeGitRepoUrl,
             "tempSecretName": "temporary-amp-credentials",
@@ -300,14 +302,15 @@ class AmpController {
     //     });
     // }
     /**
-     *
+     * prepareWorkflow
      * @param ctx
-     * @param clusterEntity
-     * @param dnsEntity
-     * @param k8sHost
-     * @param workflowFilePath
+     * @param devDnsRootDomain
+     * @param intDnsRootDomain
+     * @param ampDataGitRepoUrl
+     * @param ampCodeGitRepoUrl
+     * @returns
      */
-    prepareWorkflow(ctx, dnsRootDomain, ampDataGitRepoUrl, ampCodeGitRepoUrl) {
+    prepareWorkflow(ctx, devDnsRootDomain, intDnsRootDomain, ampDataGitRepoUrl, ampCodeGitRepoUrl) {
         return __awaiter(this, void 0, void 0, function* () {
             // Generate a unique name for the workflow
             let uid = new short_unique_id_1.default({ length: 5 });
@@ -321,7 +324,7 @@ class AmpController {
             // Compute the arguments for the Amp installation
             ctx.logger.info(' => Preparing for Amp installation...');
             // Update the workflow with the computed arguments
-            const args = this.computeArgumentsFile(ctx.input.gitlabGroupId, ctx.input.projectTitle, ctx.input.projectName, ctx.input.teamMailingList, dnsRootDomain, ampDataGitRepoUrl, ampCodeGitRepoUrl);
+            const args = this.computeArgumentsFile(ctx.input.gitlabGroupId, ctx.input.projectTitle, ctx.input.projectName, ctx.input.teamMailingList, devDnsRootDomain, intDnsRootDomain, ampDataGitRepoUrl, ampCodeGitRepoUrl);
             const updatedWorkflow = this.updateWorkflowSpecArguments(workflow, args);
             const workflowName = `amp-setup-${ctx.input.projectName}-${uidGen}`;
             updatedWorkflow.metadata.name = workflowName;
