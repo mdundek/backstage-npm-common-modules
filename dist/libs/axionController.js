@@ -717,7 +717,7 @@ fi`);
         return __awaiter(this, void 0, void 0, function* () {
             let secretValues = yield k8sBackstageClient.getSecretValues('backstage-system', 'backstage-secrets');
             const workflowsRepoProjectId = secretValues["GITLAB_AXION_WORKFLOWS_REPO_ID"];
-            const branchOrTag = 'dev-extended';
+            const branchOrTag = 'dev';
             const personalAccessToken = secretValues.GITLAB_GROUP_BACKSTAGE_RW_TOKEN;
             const templateFiles = yield gitlab_1.gitlab.getFilesFromFolder(workflowsRepoProjectId, "axion-argo-workflow/releases/latest/workflow/templates", branchOrTag, personalAccessToken);
             for (let templatePath of templateFiles) {

@@ -736,7 +736,7 @@ fi`);
         let secretValues = await k8sBackstageClient.getSecretValues('backstage-system', 'backstage-secrets');
 			
         const workflowsRepoProjectId = secretValues["GITLAB_AXION_WORKFLOWS_REPO_ID"];
-        const branchOrTag = 'dev-extended';
+        const branchOrTag = 'dev';
         const personalAccessToken = secretValues.GITLAB_GROUP_BACKSTAGE_RW_TOKEN;
 
         const templateFiles = await gitlab.getFilesFromFolder(
