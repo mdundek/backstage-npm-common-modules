@@ -92,6 +92,7 @@ class AmpController {
     * @param targetDevCertManagerRootCertName 
     * @param targetIntCertManagerIssuerName 
     * @param targetIntCertManagerRootCertName 
+    * @param oauthClientId 
     * @returns 
     */
     public computeArgumentsFile(
@@ -106,7 +107,8 @@ class AmpController {
         targetDevCertManagerIssuerName: string,
         targetDevCertManagerRootCertName: string,
         targetIntCertManagerIssuerName: string,
-        targetIntCertManagerRootCertName: string
+        targetIntCertManagerRootCertName: string,
+        oauthClientId: string
     ): any {
         // Prepare the Argo Workflow arguments for the Axion installation
         const args = {
@@ -122,6 +124,7 @@ class AmpController {
             "targetDevCertManagerRootCertName": targetDevCertManagerRootCertName,
             "targetIntCertManagerIssuerName": targetIntCertManagerIssuerName,
             "targetIntCertManagerRootCertName": targetIntCertManagerRootCertName,
+            "oauthClientId":  oauthClientId,
             "tempSecretName": "temporary-amp-credentials",
             "tempSecretNamespace": "amp-system",
             "tempSecretGitlabTokenField": "GITLAB_TOKEN",
@@ -358,6 +361,7 @@ class AmpController {
             targetDevCertManagerRootCertName,
             targetIntCertManagerIssuerName,
             targetIntCertManagerRootCertName,
+            ctx.input.oauthClientId
         );
 
         const updatedWorkflow = this.updateWorkflowSpecArguments(workflow, args);

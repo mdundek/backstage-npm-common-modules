@@ -118,9 +118,10 @@ class AmpController {
      * @param targetDevCertManagerRootCertName
      * @param targetIntCertManagerIssuerName
      * @param targetIntCertManagerRootCertName
+     * @param oauthClientId
      * @returns
      */
-    computeArgumentsFile(ampGitlabGroupId, projectTitleName, projectDnsName, teamMailingListEmail, devDnsRootDomain, intDnsRootDomain, ampDataGitRepoUrl, ampCodeGitRepoUrl, targetDevCertManagerIssuerName, targetDevCertManagerRootCertName, targetIntCertManagerIssuerName, targetIntCertManagerRootCertName) {
+    computeArgumentsFile(ampGitlabGroupId, projectTitleName, projectDnsName, teamMailingListEmail, devDnsRootDomain, intDnsRootDomain, ampDataGitRepoUrl, ampCodeGitRepoUrl, targetDevCertManagerIssuerName, targetDevCertManagerRootCertName, targetIntCertManagerIssuerName, targetIntCertManagerRootCertName, oauthClientId) {
         // Prepare the Argo Workflow arguments for the Axion installation
         const args = {
             "ampGitlabGroupId": ampGitlabGroupId,
@@ -135,6 +136,7 @@ class AmpController {
             "targetDevCertManagerRootCertName": targetDevCertManagerRootCertName,
             "targetIntCertManagerIssuerName": targetIntCertManagerIssuerName,
             "targetIntCertManagerRootCertName": targetIntCertManagerRootCertName,
+            "oauthClientId": oauthClientId,
             "tempSecretName": "temporary-amp-credentials",
             "tempSecretNamespace": "amp-system",
             "tempSecretGitlabTokenField": "GITLAB_TOKEN",
@@ -336,7 +338,7 @@ class AmpController {
             // Compute the arguments for the Amp installation
             ctx.logger.info(' => Preparing for Amp installation...');
             // Update the workflow with the computed arguments
-            const args = this.computeArgumentsFile(ctx.input.gitlabGroupId, ctx.input.projectTitle, ctx.input.projectName, ctx.input.teamMailingList, devDnsRootDomain, intDnsRootDomain, ampDataGitRepoUrl, ampCodeGitRepoUrl, targetDevCertManagerIssuerName, targetDevCertManagerRootCertName, targetIntCertManagerIssuerName, targetIntCertManagerRootCertName);
+            const args = this.computeArgumentsFile(ctx.input.gitlabGroupId, ctx.input.projectTitle, ctx.input.projectName, ctx.input.teamMailingList, devDnsRootDomain, intDnsRootDomain, ampDataGitRepoUrl, ampCodeGitRepoUrl, targetDevCertManagerIssuerName, targetDevCertManagerRootCertName, targetIntCertManagerIssuerName, targetIntCertManagerRootCertName, ctx.input.oauthClientId);
             const updatedWorkflow = this.updateWorkflowSpecArguments(workflow, args);
             const workflowName = `amp-setup-${ctx.input.projectName}-${uidGen}`;
             updatedWorkflow.metadata.name = workflowName;
