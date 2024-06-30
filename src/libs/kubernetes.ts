@@ -288,8 +288,6 @@ class KubernetesClient {
             'ClusterIssuer', 'ClusterSecretStore', 'ClusterExternalSecret', 'ClusterWorkflowTemplate'
         ]);
 
-        console.log(yamlContent)
-    
         // Parse the YAML content
         const resources: any = yaml.loadAll(yamlContent);
         if (!resources || resources.length === 0) {
@@ -322,17 +320,8 @@ class KubernetesClient {
                 } else {
                     throw new Error(`Resource kind ${kind} is not supported in cluster-scoped mode.`);
                 }
-                console.log("-----------------------------------------------------")
-                try {
-                    console.log(`apiPath ======> ${apiPath}/${resource.metadata.name}`)
-                    console.log("resource ======>", resource)
-                    await this.deleteResourceIfExists(`${apiPath}/${resource.metadata.name}`)
-                    await this.applyResource(apiPath, resource, false)
-                } catch (error) {
-                    console.log(error)
-                    throw error;
-                }
-                console.log("-----------------------------------------------------")
+                await this.deleteResourceIfExists(`${apiPath}/${resource.metadata.name}`)
+                await this.applyResource(apiPath, resource, false)
             }
         }
     }
