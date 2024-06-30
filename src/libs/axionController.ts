@@ -748,6 +748,13 @@ fi`);
         for(let templatePath of templateFiles) {
             const templateYaml = await gitlab.fetchFile(workflowsRepoProjectId, templatePath, branchOrTag, personalAccessToken);
             const b64Buffer = Buffer.from(templateYaml.content, 'base64');
+
+            console.log("----------------------------")
+            console.log(b64Buffer);
+            console.log(b64Buffer.toString('utf-8'));
+            console.log("----------------------------")
+
+
             // Parse the YAML content
             // let parsedLocationsYaml = yaml.load(b64Buffer.toString('utf-8')) as any;
             ctx.logger.info(` => Applying template ${templatePath}...`);
