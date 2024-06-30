@@ -124,8 +124,13 @@ class AxionController {
             "argoCdValues": "configs:\n  params:\n    server.insecure: true\nserver:\n  certificate:\n    enabled: false",
             "createBackstageCatalogEntry": "true",
             "dependsOnClusterCompRef": `component:${clusterEntity.metadata.namespace}/${clusterEntity.metadata.name}`,
-            "dependsOnDnsCompRef": `component:${dnsEntity.metadata.namespace}/${dnsEntity.metadata.name}`
+            "dependsOnDnsCompRef": `component:${dnsEntity.metadata.namespace}/${dnsEntity.metadata.name}`,
+            "createRootDomainDefaultCertificate": ctx.input.createDefaultRootDomainCertificate,
+            "rootDomainDefaultCertificateTargetIssuer": "letsencrypt-axion-rootdomain",
+            "rootDomainDefaultCertificateName": "axion-rootdomain-crt"
         };
+
+        
         return args
     }
 
@@ -199,7 +204,6 @@ class AxionController {
         try {
             await this.k8sClient.fetchRaw(`/apis/rbac.authorization.k8s.io/v1/clusterrolebindings/argo-admin-binding`);
         } catch (error) {
-
             await this.k8sClient.applyResource(`/apis/rbac.authorization.k8s.io/v1/clusterrolebindings`, {
                 "apiVersion": "rbac.authorization.k8s.io/v1",
                 "kind": "ClusterRoleBinding",
@@ -529,6 +533,8 @@ fi`);
         const certManagerChart = updatedWorkflowTmp.spec.arguments.parameters.find((param: { name: string; }) => param.name === 'certManagerHelmChart').value;
         const certManagerVersion = updatedWorkflowTmp.spec.arguments.parameters.find((param: { name: string; }) => param.name === 'certManagerHelmVersion').value;
         const certManagerRootClusterIssuer = updatedWorkflowTmp.spec.arguments.parameters.find((param: { name: string; }) => param.name === 'rootDomainAxionClusterIssuerName').value;
+        const createRootDomainDefaultCertificate = updatedWorkflowTmp.spec.arguments.parameters.find((param: { name: string; }) => param.name === 'createRootDomainDefaultCertificate').value;
+        const rootDomainDefaultCertificateName = updatedWorkflowTmp.spec.arguments.parameters.find((param: { name: string; }) => param.name === 'rootDomainDefaultCertificateName').value;
 
         // ExternalDns
         const externalDnsRepo = updatedWorkflowTmp.spec.arguments.parameters.find((param: { name: string; }) => param.name === 'externalDnsHelmRepo').value;	
@@ -588,7 +594,9 @@ fi`);
                         "repo": certManagerRepo,
                         "chart": certManagerChart,
                         "version": certManagerVersion,
-                        "clusterIssuer": certManagerRootClusterIssuer
+                        "clusterIssuer": certManagerRootClusterIssuer,
+                        "rootDomainDefaultCertificateCreated": createRootDomainDefaultCertificate,
+                        "rootDomainDefaultCertificateName": rootDomainDefaultCertificateName
                     },
                     "externalSecrets": {
                         "installed": ctx.input.installExternalSecrets,

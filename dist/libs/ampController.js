@@ -114,9 +114,13 @@ class AmpController {
      * @param intDnsRootDomain
      * @param ampDataGitRepoUrl
      * @param ampCodeGitRepoUrl
+     * @param targetDevCertManagerIssuerName
+     * @param targetDevCertManagerRootCertName
+     * @param targetIntCertManagerIssuerName
+     * @param targetIntCertManagerRootCertName
      * @returns
      */
-    computeArgumentsFile(ampGitlabGroupId, projectTitleName, projectDnsName, teamMailingListEmail, devDnsRootDomain, intDnsRootDomain, ampDataGitRepoUrl, ampCodeGitRepoUrl) {
+    computeArgumentsFile(ampGitlabGroupId, projectTitleName, projectDnsName, teamMailingListEmail, devDnsRootDomain, intDnsRootDomain, ampDataGitRepoUrl, ampCodeGitRepoUrl, targetDevCertManagerIssuerName, targetDevCertManagerRootCertName, targetIntCertManagerIssuerName, targetIntCertManagerRootCertName) {
         // Prepare the Argo Workflow arguments for the Axion installation
         const args = {
             "ampGitlabGroupId": ampGitlabGroupId,
@@ -127,6 +131,10 @@ class AmpController {
             "intDnsRootDomain": intDnsRootDomain,
             "ampDataGitRepoUrl": ampDataGitRepoUrl,
             "ampCodeGitRepoUrl": ampCodeGitRepoUrl,
+            "targetDevCertManagerIssuerName": targetDevCertManagerIssuerName,
+            "targetDevCertManagerRootCertName": targetDevCertManagerRootCertName,
+            "targetIntCertManagerIssuerName": targetIntCertManagerIssuerName,
+            "targetIntCertManagerRootCertName": targetIntCertManagerRootCertName,
             "tempSecretName": "temporary-amp-credentials",
             "tempSecretNamespace": "amp-system",
             "tempSecretGitlabTokenField": "GITLAB_TOKEN",
@@ -306,11 +314,15 @@ class AmpController {
      * @param ctx
      * @param devDnsRootDomain
      * @param intDnsRootDomain
+     * @param targetDevCertManagerIssuerName
+     * @param targetDevCertManagerRootCertName
+     * @param targetIntCertManagerIssuerName
+     * @param targetIntCertManagerRootCertName
      * @param ampDataGitRepoUrl
      * @param ampCodeGitRepoUrl
      * @returns
      */
-    prepareWorkflow(ctx, devDnsRootDomain, intDnsRootDomain, ampDataGitRepoUrl, ampCodeGitRepoUrl) {
+    prepareWorkflow(ctx, devDnsRootDomain, intDnsRootDomain, targetDevCertManagerIssuerName, targetDevCertManagerRootCertName, targetIntCertManagerIssuerName, targetIntCertManagerRootCertName, ampDataGitRepoUrl, ampCodeGitRepoUrl) {
         return __awaiter(this, void 0, void 0, function* () {
             // Generate a unique name for the workflow
             let uid = new short_unique_id_1.default({ length: 5 });
@@ -324,7 +336,7 @@ class AmpController {
             // Compute the arguments for the Amp installation
             ctx.logger.info(' => Preparing for Amp installation...');
             // Update the workflow with the computed arguments
-            const args = this.computeArgumentsFile(ctx.input.gitlabGroupId, ctx.input.projectTitle, ctx.input.projectName, ctx.input.teamMailingList, devDnsRootDomain, intDnsRootDomain, ampDataGitRepoUrl, ampCodeGitRepoUrl);
+            const args = this.computeArgumentsFile(ctx.input.gitlabGroupId, ctx.input.projectTitle, ctx.input.projectName, ctx.input.teamMailingList, devDnsRootDomain, intDnsRootDomain, ampDataGitRepoUrl, ampCodeGitRepoUrl, targetDevCertManagerIssuerName, targetDevCertManagerRootCertName, targetIntCertManagerIssuerName, targetIntCertManagerRootCertName);
             const updatedWorkflow = this.updateWorkflowSpecArguments(workflow, args);
             const workflowName = `amp-setup-${ctx.input.projectName}-${uidGen}`;
             updatedWorkflow.metadata.name = workflowName;

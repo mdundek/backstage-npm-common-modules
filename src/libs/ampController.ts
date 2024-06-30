@@ -78,18 +78,22 @@ class AmpController {
         });
     }
 
-    /**
-     * computeArgumentsFile
-     * @param ampGitlabGroupId 
-     * @param projectTitleName 
-     * @param projectDnsName 
-     * @param teamMailingListEmail 
-     * @param devDnsRootDomain 
-     * @param intDnsRootDomain 
-     * @param ampDataGitRepoUrl 
-     * @param ampCodeGitRepoUrl 
-     * @returns 
-     */
+   /**
+    * computeArgumentsFile
+    * @param ampGitlabGroupId 
+    * @param projectTitleName 
+    * @param projectDnsName 
+    * @param teamMailingListEmail 
+    * @param devDnsRootDomain 
+    * @param intDnsRootDomain 
+    * @param ampDataGitRepoUrl 
+    * @param ampCodeGitRepoUrl 
+    * @param targetDevCertManagerIssuerName 
+    * @param targetDevCertManagerRootCertName 
+    * @param targetIntCertManagerIssuerName 
+    * @param targetIntCertManagerRootCertName 
+    * @returns 
+    */
     public computeArgumentsFile(
         ampGitlabGroupId: string,
         projectTitleName: string,
@@ -99,6 +103,10 @@ class AmpController {
         intDnsRootDomain: string,
         ampDataGitRepoUrl: string,
         ampCodeGitRepoUrl: string,
+        targetDevCertManagerIssuerName: string,
+        targetDevCertManagerRootCertName: string,
+        targetIntCertManagerIssuerName: string,
+        targetIntCertManagerRootCertName: string
     ): any {
         // Prepare the Argo Workflow arguments for the Axion installation
         const args = {
@@ -110,6 +118,10 @@ class AmpController {
             "intDnsRootDomain": intDnsRootDomain,
             "ampDataGitRepoUrl": ampDataGitRepoUrl,
             "ampCodeGitRepoUrl": ampCodeGitRepoUrl,
+            "targetDevCertManagerIssuerName": targetDevCertManagerIssuerName,
+            "targetDevCertManagerRootCertName": targetDevCertManagerRootCertName,
+            "targetIntCertManagerIssuerName": targetIntCertManagerIssuerName,
+            "targetIntCertManagerRootCertName": targetIntCertManagerRootCertName,
             "tempSecretName": "temporary-amp-credentials",
             "tempSecretNamespace": "amp-system",
             "tempSecretGitlabTokenField": "GITLAB_TOKEN",
@@ -298,6 +310,10 @@ class AmpController {
      * @param ctx 
      * @param devDnsRootDomain 
      * @param intDnsRootDomain 
+     * @param targetDevCertManagerIssuerName 
+     * @param targetDevCertManagerRootCertName 
+     * @param targetIntCertManagerIssuerName 
+     * @param targetIntCertManagerRootCertName 
      * @param ampDataGitRepoUrl 
      * @param ampCodeGitRepoUrl 
      * @returns 
@@ -306,6 +322,10 @@ class AmpController {
         ctx: any, 
         devDnsRootDomain: string,
         intDnsRootDomain: string,
+        targetDevCertManagerIssuerName: string,
+        targetDevCertManagerRootCertName: string,
+        targetIntCertManagerIssuerName: string,
+        targetIntCertManagerRootCertName: string,
         ampDataGitRepoUrl: string,
         ampCodeGitRepoUrl: string
     ) {
@@ -332,6 +352,10 @@ class AmpController {
             intDnsRootDomain,
             ampDataGitRepoUrl,
             ampCodeGitRepoUrl,
+            targetDevCertManagerIssuerName,
+            targetDevCertManagerRootCertName,
+            targetIntCertManagerIssuerName,
+            targetIntCertManagerRootCertName,
         );
 
         const updatedWorkflow = this.updateWorkflowSpecArguments(workflow, args);

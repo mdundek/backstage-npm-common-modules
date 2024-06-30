@@ -24,9 +24,13 @@ declare class AmpController {
      * @param intDnsRootDomain
      * @param ampDataGitRepoUrl
      * @param ampCodeGitRepoUrl
+     * @param targetDevCertManagerIssuerName
+     * @param targetDevCertManagerRootCertName
+     * @param targetIntCertManagerIssuerName
+     * @param targetIntCertManagerRootCertName
      * @returns
      */
-    computeArgumentsFile(ampGitlabGroupId: string, projectTitleName: string, projectDnsName: string, teamMailingListEmail: string, devDnsRootDomain: string, intDnsRootDomain: string, ampDataGitRepoUrl: string, ampCodeGitRepoUrl: string): any;
+    computeArgumentsFile(ampGitlabGroupId: string, projectTitleName: string, projectDnsName: string, teamMailingListEmail: string, devDnsRootDomain: string, intDnsRootDomain: string, ampDataGitRepoUrl: string, ampCodeGitRepoUrl: string, targetDevCertManagerIssuerName: string, targetDevCertManagerRootCertName: string, targetIntCertManagerIssuerName: string, targetIntCertManagerRootCertName: string): any;
     /**
      *
      * @param workflow
@@ -67,11 +71,15 @@ declare class AmpController {
      * @param ctx
      * @param devDnsRootDomain
      * @param intDnsRootDomain
+     * @param targetDevCertManagerIssuerName
+     * @param targetDevCertManagerRootCertName
+     * @param targetIntCertManagerIssuerName
+     * @param targetIntCertManagerRootCertName
      * @param ampDataGitRepoUrl
      * @param ampCodeGitRepoUrl
      * @returns
      */
-    prepareWorkflow(ctx: any, devDnsRootDomain: string, intDnsRootDomain: string, ampDataGitRepoUrl: string, ampCodeGitRepoUrl: string): Promise<{
+    prepareWorkflow(ctx: any, devDnsRootDomain: string, intDnsRootDomain: string, targetDevCertManagerIssuerName: string, targetDevCertManagerRootCertName: string, targetIntCertManagerIssuerName: string, targetIntCertManagerRootCertName: string, ampDataGitRepoUrl: string, ampCodeGitRepoUrl: string): Promise<{
         uidGen: string;
         workflowFilePath: string;
         workflowName: string;

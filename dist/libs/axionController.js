@@ -158,7 +158,10 @@ class AxionController {
             "argoCdValues": "configs:\n  params:\n    server.insecure: true\nserver:\n  certificate:\n    enabled: false",
             "createBackstageCatalogEntry": "true",
             "dependsOnClusterCompRef": `component:${clusterEntity.metadata.namespace}/${clusterEntity.metadata.name}`,
-            "dependsOnDnsCompRef": `component:${dnsEntity.metadata.namespace}/${dnsEntity.metadata.name}`
+            "dependsOnDnsCompRef": `component:${dnsEntity.metadata.namespace}/${dnsEntity.metadata.name}`,
+            "createRootDomainDefaultCertificate": ctx.input.createDefaultRootDomainCertificate,
+            "rootDomainDefaultCertificateTargetIssuer": "letsencrypt-axion-rootdomain",
+            "rootDomainDefaultCertificateName": "axion-rootdomain-crt"
         };
         return args;
     }
@@ -542,6 +545,8 @@ fi`);
             const certManagerChart = updatedWorkflowTmp.spec.arguments.parameters.find((param) => param.name === 'certManagerHelmChart').value;
             const certManagerVersion = updatedWorkflowTmp.spec.arguments.parameters.find((param) => param.name === 'certManagerHelmVersion').value;
             const certManagerRootClusterIssuer = updatedWorkflowTmp.spec.arguments.parameters.find((param) => param.name === 'rootDomainAxionClusterIssuerName').value;
+            const createRootDomainDefaultCertificate = updatedWorkflowTmp.spec.arguments.parameters.find((param) => param.name === 'createRootDomainDefaultCertificate').value;
+            const rootDomainDefaultCertificateName = updatedWorkflowTmp.spec.arguments.parameters.find((param) => param.name === 'rootDomainDefaultCertificateName').value;
             // ExternalDns
             const externalDnsRepo = updatedWorkflowTmp.spec.arguments.parameters.find((param) => param.name === 'externalDnsHelmRepo').value;
             const externalDnsChart = updatedWorkflowTmp.spec.arguments.parameters.find((param) => param.name === 'externalDnsHelmChart').value;
@@ -597,7 +602,9 @@ fi`);
                             "repo": certManagerRepo,
                             "chart": certManagerChart,
                             "version": certManagerVersion,
-                            "clusterIssuer": certManagerRootClusterIssuer
+                            "clusterIssuer": certManagerRootClusterIssuer,
+                            "rootDomainDefaultCertificateCreated": createRootDomainDefaultCertificate,
+                            "rootDomainDefaultCertificateName": rootDomainDefaultCertificateName
                         },
                         "externalSecrets": {
                             "installed": ctx.input.installExternalSecrets,
