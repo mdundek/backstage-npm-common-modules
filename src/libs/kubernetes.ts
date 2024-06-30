@@ -285,7 +285,7 @@ class KubernetesClient {
             'Namespace', 'Node', 'PersistentVolume', 'CustomResourceDefinition',
             'ClusterRole', 'ClusterRoleBinding', 'ValidatingWebhookConfiguration',
             'MutatingWebhookConfiguration', 'APIService', 'PriorityClass', 
-            'ClusterIssuer', 'ClusterSecretStore', 'ClusterExternalSecret'
+            'ClusterIssuer', 'ClusterSecretStore', 'ClusterExternalSecret', 'ClusterWorkflowTemplate'
         ]);
     
         // Parse the YAML content
