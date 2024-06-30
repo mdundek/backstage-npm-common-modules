@@ -354,7 +354,7 @@ class KubernetesClient {
                         throw new Error(`Resource kind ${kind} is not supported in cluster-scoped mode.`);
                     }
                     yield this.deleteResourceIfExists(`${apiPath}/${resource.metadata.name}`);
-                    yield this.applyResource(apiPath, resource, true);
+                    yield this.applyResource(apiPath, resource, false);
                 }
             }
         });
