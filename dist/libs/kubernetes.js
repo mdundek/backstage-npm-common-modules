@@ -318,6 +318,7 @@ class KubernetesClient {
                 'MutatingWebhookConfiguration', 'APIService', 'PriorityClass',
                 'ClusterIssuer', 'ClusterSecretStore', 'ClusterExternalSecret', 'ClusterWorkflowTemplate'
             ]);
+            console.log(yamlContent);
             // Parse the YAML content
             const resources = yaml.loadAll(yamlContent);
             if (!resources || resources.length === 0) {
