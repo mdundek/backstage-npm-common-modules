@@ -724,10 +724,10 @@ fi`);
                 const templateYaml = yield gitlab_1.gitlab.fetchFile(workflowsRepoProjectId, templatePath, branchOrTag, personalAccessToken);
                 const b64Buffer = Buffer.from(templateYaml.content, 'base64');
                 // Parse the YAML content
-                let parsedLocationsYaml = yaml.load(b64Buffer.toString('utf-8'));
+                // let parsedLocationsYaml = yaml.load(b64Buffer.toString('utf-8')) as any;
                 ctx.logger.info(` => Applying template ${templatePath}...`);
                 // Apply to remote cluster
-                this.k8sClient.applyYaml(parsedLocationsYaml);
+                this.k8sClient.applyYaml(b64Buffer.toString('utf-8'));
             }
         });
     }
