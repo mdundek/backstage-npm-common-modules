@@ -167,12 +167,14 @@ class AmpController {
      * @param workflowFilePath 
      * @param workflowName 
      */
-    public async deploy(ctx: any, workflowFilePath: string, workflowName: string) {
+    public async deploy(ctx: any, workflowFilePath: string, workflowName: string, debug?: boolean) {
         // Run the workflow
         await this.argoClient.runWorkflow(
             ctx.logger,
             workflowFilePath,
-            workflowName
+            workflowName,
+            false,
+            debug
         );
     }
 

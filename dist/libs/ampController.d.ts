@@ -44,7 +44,7 @@ declare class AmpController {
      * @param workflowFilePath
      * @param workflowName
      */
-    deploy(ctx: any, workflowFilePath: string, workflowName: string): Promise<void>;
+    deploy(ctx: any, workflowFilePath: string, workflowName: string, debug?: boolean): Promise<void>;
     /**
      *
      */

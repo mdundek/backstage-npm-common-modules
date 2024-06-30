@@ -173,10 +173,10 @@ class AmpController {
      * @param workflowFilePath
      * @param workflowName
      */
-    deploy(ctx, workflowFilePath, workflowName) {
+    deploy(ctx, workflowFilePath, workflowName, debug) {
         return __awaiter(this, void 0, void 0, function* () {
             // Run the workflow
-            yield this.argoClient.runWorkflow(ctx.logger, workflowFilePath, workflowName);
+            yield this.argoClient.runWorkflow(ctx.logger, workflowFilePath, workflowName, false, debug);
         });
     }
     /**

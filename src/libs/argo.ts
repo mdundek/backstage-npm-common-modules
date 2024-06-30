@@ -45,7 +45,7 @@ class ArgoClient {
      * @param workflowFilePath 
      * @param workflowName 
      */
-    public async runWorkflow(logger: any, workflowFilePath: string, workflowName: string, proxied?: boolean): Promise<any> {
+    public async runWorkflow(logger: any, workflowFilePath: string, workflowName: string, proxied?: boolean, debug?: boolean): Promise<any> {
         return new Promise<void>((resolve, reject) => {
             const KUBE_API_SERVER = this.KUBE_API_SERVER;
             if (!KUBE_API_SERVER) {
@@ -91,15 +91,19 @@ class ArgoClient {
                     if(proxied)
                         line = line.substring(line.indexOf(":")+1)
                     allLogs.push(line);
-                    if (pattern1.test(line)) {
-                        logger.info("")
-                        logger.info(` ${line.substring(line.indexOf(":")+1, line.length).trim()}`);
-                        resetLogTimeout();
-                    }
-                    else if (pattern2.test(line)) {
-                        logger.info(` ${line.substring(line.indexOf(":")+1, line.length).trim()}`);
-                        resetLogTimeout();
-                    }
+                    if(debug) {
+                        logger.info(line)
+                    } else {
+                        if (pattern1.test(line)) {
+                            logger.info("")
+                            logger.info(` ${line.substring(line.indexOf(":")+1, line.length).trim()}`);
+                            resetLogTimeout();
+                        }
+                        else if (pattern2.test(line)) {
+                            logger.info(` ${line.substring(line.indexOf(":")+1, line.length).trim()}`);
+                            resetLogTimeout();
+                        }
+                    }    
                 });
             });
     
