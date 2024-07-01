@@ -369,6 +369,8 @@ class AmpController {
             ctx.input.terraformCleanupBeforeCreate ? true : false
         );
 
+        const gcpProjectId = JSON.parse(ctx.input.cloudCredentials).project_id;
+
         args.gitlabCredsSecretName = "backstage-secrets"
         args.gitlabCredsSecretNamespace = "backstage-system"
         args.resourceOwnerRef = ctx.input.catalogOwnerRef;
@@ -376,17 +378,52 @@ class AmpController {
         args.targetBackstageSystemNormalized = BackstageComponentRegistrar.normalizeSystemRef(ctx.input.targetSystem);
 
         args.ampSpannerNormalizedName = masterConfigJson.config.ci.chunks.find((o: { type: string; }) => o.type == "EnvConfig").value.environments.dev.db.instance.name;
-        args.ampSpannerBackstageSpecOther = "";
+        args.ampSpannerBackstageSpecOther = yaml.dump({
+            "data": {
+                "links": [
+                    {
+                        "Name": "Spanner Instance",
+                        "href": `https://console.cloud.google.com/spanner/instances/${args.ampSpannerNormalizedName}/details/databases?project=${gcpProjectId}`
+                    }
+                ]
+            }
+        });
 
         args.ampRedisIntNormalizedName = masterConfigJson.config.ci.chunks.find((o: { type: string; }) => o.type == "EnvConfig").value.environments.integration.memstore.name;
-        args.ampRedisIntBackstageSpecOther = "";
+        args.ampRedisIntBackstageSpecOther = yaml.dump({
+            "data": {
+                "links": [
+                    {
+                        "Name": "Redis Integration Instance",
+                        "href": `https://console.cloud.google.com/memorystore/redis/locations/us-west1/instances/${args.ampRedisIntNormalizedName}/details/overview?project=${gcpProjectId}`
+                    }
+                ]
+            }
+        });
 
         args.ampSetupNormalizedName = ctx.input.projectName;
         args.ampSetupDependsOnSpannerCompRef = `component:default/amp-spanner-instance-${args.ampSpannerNormalizedName}`;
         args.ampSetupDependsOnRedisIntCompRef = `component:default/amp-redis-${args.ampRedisIntNormalizedName}`
         args.ampSetupDependsOnAxionDevCompRef = ctx.input.axionDevInstanceRef;
         args.ampSetupDependsOnAxionIntCompRef = ctx.input.axionIntInstanceRef;
-        args.ampSetupBackstageSpecOther = "";
+        args.ampSetupBackstageSpecOther = yaml.dump({
+            "data": {
+                "links": [
+                    {
+                        "Name": "AMP Data repository",
+                        "href": ampDataGitRepoUrl
+                    },
+                    {
+                        "Name": "AMP Code repository",
+                        "href": ampCodeGitRepoUrl
+                    },
+                    {
+                        "Name": "AMP Console",
+                        "href": `game.${intDnsRootDomain}:443`
+                    }
+                ]
+            }
+        });
 
         const updatedWorkflow = this.updateWorkflowSpecArguments(workflow, args);
         
