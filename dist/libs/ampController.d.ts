@@ -81,7 +81,7 @@ declare class AmpController {
      * @param ampCodeGitRepoUrl
      * @returns
      */
-    prepareWorkflow(ctx: any, devDnsRootDomain: string, intDnsRootDomain: string, targetDevCertManagerIssuerName: string, targetDevCertManagerRootCertName: string, targetIntCertManagerIssuerName: string, targetIntCertManagerRootCertName: string, ampDataGitRepoUrl: string, ampCodeGitRepoUrl: string): Promise<{
+    prepareWorkflow(ctx: any, masterConfigJson: any, devDnsRootDomain: string, intDnsRootDomain: string, targetDevCertManagerIssuerName: string, targetDevCertManagerRootCertName: string, targetIntCertManagerIssuerName: string, targetIntCertManagerRootCertName: string, ampDataGitRepoUrl: string, ampCodeGitRepoUrl: string): Promise<{
         uidGen: string;
         workflowFilePath: string;
         workflowName: string;

@@ -37,6 +37,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AmpController = void 0;
 const kubernetes_1 = require("./kubernetes");
+const backstageRegistrar_1 = require("./backstageRegistrar");
 const argo_1 = require("./argo");
 const gitlab_1 = require("./gitlab");
 const os = __importStar(require("os"));
@@ -145,7 +146,7 @@ class AmpController {
             "tempSecretGcpJsonKeyField": "GCP_JSON_KEY",
             "tempSecretGcpRegionField": "GCP_REGION",
             "terraformOutputSecretName": "terraform-output-secret",
-            "terraformOutputSecretNamespace": "amp-system"
+            "terraformOutputSecretNamespace": "amp-system",
         };
         return args;
     }
@@ -326,7 +327,7 @@ class AmpController {
      * @param ampCodeGitRepoUrl
      * @returns
      */
-    prepareWorkflow(ctx, devDnsRootDomain, intDnsRootDomain, targetDevCertManagerIssuerName, targetDevCertManagerRootCertName, targetIntCertManagerIssuerName, targetIntCertManagerRootCertName, ampDataGitRepoUrl, ampCodeGitRepoUrl) {
+    prepareWorkflow(ctx, masterConfigJson, devDnsRootDomain, intDnsRootDomain, targetDevCertManagerIssuerName, targetDevCertManagerRootCertName, targetIntCertManagerIssuerName, targetIntCertManagerRootCertName, ampDataGitRepoUrl, ampCodeGitRepoUrl) {
         return __awaiter(this, void 0, void 0, function* () {
             // Generate a unique name for the workflow
             let uid = new short_unique_id_1.default({ length: 5 });
@@ -341,6 +342,21 @@ class AmpController {
             ctx.logger.info(' => Preparing for Amp installation...');
             // Update the workflow with the computed arguments
             const args = this.computeArgumentsFile(ctx.input.gitlabGroupId, ctx.input.projectTitle, ctx.input.projectName, ctx.input.teamMailingList, devDnsRootDomain, intDnsRootDomain, ampDataGitRepoUrl, ampCodeGitRepoUrl, targetDevCertManagerIssuerName, targetDevCertManagerRootCertName, targetIntCertManagerIssuerName, targetIntCertManagerRootCertName, ctx.input.oauthClientId, ctx.input.terraformCleanupBeforeCreate ? true : false);
+            args.gitlabCredsSecretName = "backstage-secrets";
+            args.gitlabCredsSecretNamespace = "backstage-system";
+            args.resourceOwnerRef = ctx.input.catalogOwnerRef;
+            args.targetBackstageSystem = ctx.input.targetSystem;
+            args.targetBackstageSystemNormalized = backstageRegistrar_1.BackstageComponentRegistrar.normalizeSystemRef(ctx.input.targetSystem);
+            args.ampSpannerNormalizedName = masterConfigJson.config.ci.chunks.find((o) => o.type == "EnvConfig").value.environments.dev.db.instance.name;
+            args.ampSpannerBackstageSpecOther = "";
+            args.ampRedisIntNormalizedName = masterConfigJson.config.ci.chunks.find((o) => o.type == "EnvConfig").value.environments.integration.memstore.name;
+            args.ampRedisIntBackstageSpecOther = "";
+            args.ampSetupNormalizedName = ctx.input.projectName;
+            args.ampSetupDependsOnSpannerCompRef = `amp-spanner-instance-$${args.ampSpannerNormalizedName}`;
+            args.ampSetupDependsOnRedisIntCompRef = `amp-redis-$${args.ampRedisIntNormalizedName}`;
+            args.ampSetupDependsOnAxionDevCompRef = ctx.input.axionDevInstanceRef;
+            args.ampSetupDependsOnAxionIntCompRef = ctx.input.axionIntInstanceRef;
+            args.ampSetupBackstageSpecOther = "";
             const updatedWorkflow = this.updateWorkflowSpecArguments(workflow, args);
             const workflowName = `amp-setup-${ctx.input.projectName}-${uidGen}`;
             updatedWorkflow.metadata.name = workflowName;

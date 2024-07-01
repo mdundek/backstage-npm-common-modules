@@ -134,7 +134,7 @@ class AmpController {
             "tempSecretGcpJsonKeyField": "GCP_JSON_KEY",
             "tempSecretGcpRegionField": "GCP_REGION",
             "terraformOutputSecretName": "terraform-output-secret",
-            "terraformOutputSecretNamespace": "amp-system"
+            "terraformOutputSecretNamespace": "amp-system",
         };
         return args
     }
@@ -328,6 +328,7 @@ class AmpController {
      */
     public async prepareWorkflow(
         ctx: any, 
+        masterConfigJson: any,
         devDnsRootDomain: string,
         intDnsRootDomain: string,
         targetDevCertManagerIssuerName: string,
@@ -367,6 +368,25 @@ class AmpController {
             ctx.input.oauthClientId,
             ctx.input.terraformCleanupBeforeCreate ? true : false
         );
+
+        args.gitlabCredsSecretName = "backstage-secrets"
+        args.gitlabCredsSecretNamespace = "backstage-system"
+        args.resourceOwnerRef = ctx.input.catalogOwnerRef;
+        args.targetBackstageSystem = ctx.input.targetSystem;
+        args.targetBackstageSystemNormalized = BackstageComponentRegistrar.normalizeSystemRef(ctx.input.targetSystem);
+
+        args.ampSpannerNormalizedName = masterConfigJson.config.ci.chunks.find((o: { type: string; }) => o.type == "EnvConfig").value.environments.dev.db.instance.name;
+        args.ampSpannerBackstageSpecOther = "";
+
+        args.ampRedisIntNormalizedName = masterConfigJson.config.ci.chunks.find((o: { type: string; }) => o.type == "EnvConfig").value.environments.integration.memstore.name;
+        args.ampRedisIntBackstageSpecOther = "";
+
+        args.ampSetupNormalizedName = ctx.input.projectName;
+        args.ampSetupDependsOnSpannerCompRef = `amp-spanner-instance-$${args.ampSpannerNormalizedName}`;
+        args.ampSetupDependsOnRedisIntCompRef = `amp-redis-$${args.ampRedisIntNormalizedName}`
+        args.ampSetupDependsOnAxionDevCompRef = ctx.input.axionDevInstanceRef;
+        args.ampSetupDependsOnAxionIntCompRef = ctx.input.axionIntInstanceRef;
+        args.ampSetupBackstageSpecOther = "";
 
         const updatedWorkflow = this.updateWorkflowSpecArguments(workflow, args);
         
