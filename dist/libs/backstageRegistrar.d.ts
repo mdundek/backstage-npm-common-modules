@@ -143,10 +143,5 @@ export declare class BackstageComponentRegistrar {
     *
     */
     registerSystemInCatalog(globalInputs: GlobalInputsParameters): Promise<string>;
-    /**
-     *
-     * @param ctx
-     */
-    deployBackstageCommonWorkflowTemplate(ctx: any): Promise<void>;
 }
 //# sourceMappingURL=backstageRegistrar.d.ts.map

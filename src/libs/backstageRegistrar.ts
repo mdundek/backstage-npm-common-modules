@@ -1,6 +1,5 @@
 import * as yaml from 'js-yaml';
 import { KubernetesClient } from './kubernetes';
-import { gitlab } from './gitlab';
 
 export interface GitlabInputsParameters {
     catalogDir: string;
@@ -414,24 +413,5 @@ spec:
         await this.updateLocationsFile(`./${catalogFilePath}`);
 
         return this.genName;
-    }
-
-    /**
-     * 
-     * @param ctx 
-     */
-    public async deployBackstageCommonWorkflowTemplate(ctx: any) {
-        let secretValues = await this.k8sClient.getSecretValues('backstage-system', 'backstage-secrets');
-			
-        const workflowsRepoProjectId = secretValues["GITLAB_AXION_WORKFLOWS_REPO_ID"];
-        const branchOrTag = 'dev';
-        const personalAccessToken = secretValues.GITLAB_GROUP_BACKSTAGE_RW_TOKEN;
-
-        const templateYaml = await gitlab.fetchFile(workflowsRepoProjectId, "axion-argo-workflow/releases/latest/workflow/templates/backstage-common.yaml", branchOrTag, personalAccessToken);
-        const b64Buffer = Buffer.from(templateYaml.content, 'base64');
-        // Parse the YAML content
-        ctx.logger.info(` => Applying template backstage-common.yaml...`);
-        // Apply to remote cluster
-        this.k8sClient.applyYaml(b64Buffer.toString('utf-8'))
     }
 }

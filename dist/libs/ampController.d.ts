@@ -99,6 +99,16 @@ declare class AmpController {
      * @param k8sBackstageClient
      */
     private createWorkflowScriptsConfigMap;
+    /**
+     *
+     * @param ctx
+     */
+    ensureArgoIsInstalled(ctx: any): Promise<void>;
+    /**
+     *
+     * @param ctx
+     */
+    deployBackstageCommonWorkflowTemplate(ctx: any): Promise<void>;
 }
 export { AmpController };
 //# sourceMappingURL=ampController.d.ts.map

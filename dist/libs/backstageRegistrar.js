@@ -35,7 +35,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.BackstageComponentRegistrar = void 0;
 const yaml = __importStar(require("js-yaml"));
 const kubernetes_1 = require("./kubernetes");
-const gitlab_1 = require("./gitlab");
 /**
  *
  */
@@ -377,24 +376,6 @@ spec:
             yield this.updateOrCreateFile(catalogFilePath, yamlContent);
             yield this.updateLocationsFile(`./${catalogFilePath}`);
             return this.genName;
-        });
-    }
-    /**
-     *
-     * @param ctx
-     */
-    deployBackstageCommonWorkflowTemplate(ctx) {
-        return __awaiter(this, void 0, void 0, function* () {
-            let secretValues = yield this.k8sClient.getSecretValues('backstage-system', 'backstage-secrets');
-            const workflowsRepoProjectId = secretValues["GITLAB_AXION_WORKFLOWS_REPO_ID"];
-            const branchOrTag = 'dev';
-            const personalAccessToken = secretValues.GITLAB_GROUP_BACKSTAGE_RW_TOKEN;
-            const templateYaml = yield gitlab_1.gitlab.fetchFile(workflowsRepoProjectId, "axion-argo-workflow/releases/latest/workflow/templates/backstage-common.yaml", branchOrTag, personalAccessToken);
-            const b64Buffer = Buffer.from(templateYaml.content, 'base64');
-            // Parse the YAML content
-            ctx.logger.info(` => Applying template backstage-common.yaml...`);
-            // Apply to remote cluster
-            this.k8sClient.applyYaml(b64Buffer.toString('utf-8'));
         });
     }
 }
