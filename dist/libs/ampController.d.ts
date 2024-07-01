@@ -15,7 +15,7 @@ declare class AmpController {
      */
     prepareTemporarySecret(cloudCredentials: string, gitlabGroupAuthToken: string, cloudProvider: string, gcpRegion: string): Promise<void>;
     /**
-     * computeArgumentsFile
+     public computeArgumentsFile
      * @param ampGitlabGroupId
      * @param projectTitleName
      * @param projectDnsName
@@ -29,9 +29,10 @@ declare class AmpController {
      * @param targetIntCertManagerIssuerName
      * @param targetIntCertManagerRootCertName
      * @param oauthClientId
+     * @param terraformCleanupBeforeCreate
      * @returns
      */
-    computeArgumentsFile(ampGitlabGroupId: string, projectTitleName: string, projectDnsName: string, teamMailingListEmail: string, devDnsRootDomain: string, intDnsRootDomain: string, ampDataGitRepoUrl: string, ampCodeGitRepoUrl: string, targetDevCertManagerIssuerName: string, targetDevCertManagerRootCertName: string, targetIntCertManagerIssuerName: string, targetIntCertManagerRootCertName: string, oauthClientId: string): any;
+    computeArgumentsFile(ampGitlabGroupId: string, projectTitleName: string, projectDnsName: string, teamMailingListEmail: string, devDnsRootDomain: string, intDnsRootDomain: string, ampDataGitRepoUrl: string, ampCodeGitRepoUrl: string, targetDevCertManagerIssuerName: string, targetDevCertManagerRootCertName: string, targetIntCertManagerIssuerName: string, targetIntCertManagerRootCertName: string, oauthClientId: string, terraformCleanupBeforeCreate: boolean): any;
     /**
      *
      * @param workflow

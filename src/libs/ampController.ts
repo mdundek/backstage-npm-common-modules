@@ -79,7 +79,7 @@ class AmpController {
     }
 
    /**
-    * computeArgumentsFile
+    public computeArgumentsFile
     * @param ampGitlabGroupId 
     * @param projectTitleName 
     * @param projectDnsName 
@@ -93,6 +93,7 @@ class AmpController {
     * @param targetIntCertManagerIssuerName 
     * @param targetIntCertManagerRootCertName 
     * @param oauthClientId 
+    * @param terraformCleanupBeforeCreate 
     * @returns 
     */
     public computeArgumentsFile(
@@ -108,7 +109,8 @@ class AmpController {
         targetDevCertManagerRootCertName: string,
         targetIntCertManagerIssuerName: string,
         targetIntCertManagerRootCertName: string,
-        oauthClientId: string
+        oauthClientId: string,
+        terraformCleanupBeforeCreate: boolean
     ): any {
         // Prepare the Argo Workflow arguments for the Axion installation
         const args = {
@@ -125,6 +127,7 @@ class AmpController {
             "targetIntCertManagerIssuerName": targetIntCertManagerIssuerName,
             "targetIntCertManagerRootCertName": targetIntCertManagerRootCertName,
             "oauthClientId":  oauthClientId,
+            "terraformCleanupBeforeCreate": terraformCleanupBeforeCreate,
             "tempSecretName": "temporary-amp-credentials",
             "tempSecretNamespace": "amp-system",
             "tempSecretGitlabTokenField": "GITLAB_TOKEN",
@@ -361,7 +364,8 @@ class AmpController {
             targetDevCertManagerRootCertName,
             targetIntCertManagerIssuerName,
             targetIntCertManagerRootCertName,
-            ctx.input.oauthClientId
+            ctx.input.oauthClientId,
+            ctx.input.terraformCleanupBeforeCreate
         );
 
         const updatedWorkflow = this.updateWorkflowSpecArguments(workflow, args);

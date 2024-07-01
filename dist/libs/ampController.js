@@ -105,7 +105,7 @@ class AmpController {
         });
     }
     /**
-     * computeArgumentsFile
+     public computeArgumentsFile
      * @param ampGitlabGroupId
      * @param projectTitleName
      * @param projectDnsName
@@ -119,9 +119,10 @@ class AmpController {
      * @param targetIntCertManagerIssuerName
      * @param targetIntCertManagerRootCertName
      * @param oauthClientId
+     * @param terraformCleanupBeforeCreate
      * @returns
      */
-    computeArgumentsFile(ampGitlabGroupId, projectTitleName, projectDnsName, teamMailingListEmail, devDnsRootDomain, intDnsRootDomain, ampDataGitRepoUrl, ampCodeGitRepoUrl, targetDevCertManagerIssuerName, targetDevCertManagerRootCertName, targetIntCertManagerIssuerName, targetIntCertManagerRootCertName, oauthClientId) {
+    computeArgumentsFile(ampGitlabGroupId, projectTitleName, projectDnsName, teamMailingListEmail, devDnsRootDomain, intDnsRootDomain, ampDataGitRepoUrl, ampCodeGitRepoUrl, targetDevCertManagerIssuerName, targetDevCertManagerRootCertName, targetIntCertManagerIssuerName, targetIntCertManagerRootCertName, oauthClientId, terraformCleanupBeforeCreate) {
         // Prepare the Argo Workflow arguments for the Axion installation
         const args = {
             "ampGitlabGroupId": ampGitlabGroupId,
@@ -137,6 +138,7 @@ class AmpController {
             "targetIntCertManagerIssuerName": targetIntCertManagerIssuerName,
             "targetIntCertManagerRootCertName": targetIntCertManagerRootCertName,
             "oauthClientId": oauthClientId,
+            "terraformCleanupBeforeCreate": terraformCleanupBeforeCreate,
             "tempSecretName": "temporary-amp-credentials",
             "tempSecretNamespace": "amp-system",
             "tempSecretGitlabTokenField": "GITLAB_TOKEN",
@@ -338,7 +340,7 @@ class AmpController {
             // Compute the arguments for the Amp installation
             ctx.logger.info(' => Preparing for Amp installation...');
             // Update the workflow with the computed arguments
-            const args = this.computeArgumentsFile(ctx.input.gitlabGroupId, ctx.input.projectTitle, ctx.input.projectName, ctx.input.teamMailingList, devDnsRootDomain, intDnsRootDomain, ampDataGitRepoUrl, ampCodeGitRepoUrl, targetDevCertManagerIssuerName, targetDevCertManagerRootCertName, targetIntCertManagerIssuerName, targetIntCertManagerRootCertName, ctx.input.oauthClientId);
+            const args = this.computeArgumentsFile(ctx.input.gitlabGroupId, ctx.input.projectTitle, ctx.input.projectName, ctx.input.teamMailingList, devDnsRootDomain, intDnsRootDomain, ampDataGitRepoUrl, ampCodeGitRepoUrl, targetDevCertManagerIssuerName, targetDevCertManagerRootCertName, targetIntCertManagerIssuerName, targetIntCertManagerRootCertName, ctx.input.oauthClientId, ctx.input.terraformCleanupBeforeCreate);
             const updatedWorkflow = this.updateWorkflowSpecArguments(workflow, args);
             const workflowName = `amp-setup-${ctx.input.projectName}-${uidGen}`;
             updatedWorkflow.metadata.name = workflowName;
