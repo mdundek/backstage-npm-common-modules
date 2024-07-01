@@ -71,7 +71,6 @@ export const gitlab = {
         personalAccessToken: string
     ): Promise<any> => {
         const url = `https://gitlab.ea.com/api/v4/projects/${encodeURIComponent(repositoryId)}/repository/files/${encodeURIComponent(filePath)}`;
-        console.log(url)
         let response = await fetch(`${url}?ref=${branchOrTag}`, {
             method: 'GET',
             headers: {
