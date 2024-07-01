@@ -530,6 +530,8 @@ class AmpController {
      */
     public async deployBackstageCommonWorkflowTemplate(ctx: any) {
         let secretValues = await this.k8sClient.getSecretValues('backstage-system', 'backstage-secrets');
+
+        console.log(secretValues)
 			
         const workflowsRepoProjectId = secretValues["GITLAB_AXION_WORKFLOWS_REPO_ID"];
         const branchOrTag = 'dev';
