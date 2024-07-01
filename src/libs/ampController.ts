@@ -382,8 +382,8 @@ class AmpController {
         args.ampRedisIntBackstageSpecOther = "";
 
         args.ampSetupNormalizedName = ctx.input.projectName;
-        args.ampSetupDependsOnSpannerCompRef = `amp-spanner-instance-$${args.ampSpannerNormalizedName}`;
-        args.ampSetupDependsOnRedisIntCompRef = `amp-redis-$${args.ampRedisIntNormalizedName}`
+        args.ampSetupDependsOnSpannerCompRef = `component:default/amp-spanner-instance-${args.ampSpannerNormalizedName}`;
+        args.ampSetupDependsOnRedisIntCompRef = `component:default/amp-redis-${args.ampRedisIntNormalizedName}`
         args.ampSetupDependsOnAxionDevCompRef = ctx.input.axionDevInstanceRef;
         args.ampSetupDependsOnAxionIntCompRef = ctx.input.axionIntInstanceRef;
         args.ampSetupBackstageSpecOther = "";
