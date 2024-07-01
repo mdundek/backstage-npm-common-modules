@@ -340,7 +340,7 @@ class AmpController {
             // Compute the arguments for the Amp installation
             ctx.logger.info(' => Preparing for Amp installation...');
             // Update the workflow with the computed arguments
-            const args = this.computeArgumentsFile(ctx.input.gitlabGroupId, ctx.input.projectTitle, ctx.input.projectName, ctx.input.teamMailingList, devDnsRootDomain, intDnsRootDomain, ampDataGitRepoUrl, ampCodeGitRepoUrl, targetDevCertManagerIssuerName, targetDevCertManagerRootCertName, targetIntCertManagerIssuerName, targetIntCertManagerRootCertName, ctx.input.oauthClientId, ctx.input.terraformCleanupBeforeCreate);
+            const args = this.computeArgumentsFile(ctx.input.gitlabGroupId, ctx.input.projectTitle, ctx.input.projectName, ctx.input.teamMailingList, devDnsRootDomain, intDnsRootDomain, ampDataGitRepoUrl, ampCodeGitRepoUrl, targetDevCertManagerIssuerName, targetDevCertManagerRootCertName, targetIntCertManagerIssuerName, targetIntCertManagerRootCertName, ctx.input.oauthClientId, ctx.input.terraformCleanupBeforeCreate ? true : false);
             const updatedWorkflow = this.updateWorkflowSpecArguments(workflow, args);
             const workflowName = `amp-setup-${ctx.input.projectName}-${uidGen}`;
             updatedWorkflow.metadata.name = workflowName;

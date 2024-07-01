@@ -365,7 +365,7 @@ class AmpController {
             targetIntCertManagerIssuerName,
             targetIntCertManagerRootCertName,
             ctx.input.oauthClientId,
-            ctx.input.terraformCleanupBeforeCreate
+            ctx.input.terraformCleanupBeforeCreate ? true : false
         );
 
         const updatedWorkflow = this.updateWorkflowSpecArguments(workflow, args);
