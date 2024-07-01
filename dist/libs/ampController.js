@@ -393,6 +393,7 @@ class AmpController {
                     ]
                 }
             });
+            args.ampSetupBackstageLinks = `- title: AMP Console\n  url: game.${intDnsRootDomain}:443`;
             const updatedWorkflow = this.updateWorkflowSpecArguments(workflow, args);
             const workflowName = `amp-setup-${ctx.input.projectName}-${uidGen}`;
             updatedWorkflow.metadata.name = workflowName;

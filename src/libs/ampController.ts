@@ -378,6 +378,8 @@ class AmpController {
         args.targetBackstageSystemNormalized = BackstageComponentRegistrar.normalizeSystemRef(ctx.input.targetSystem);
 
         args.ampSpannerNormalizedName = masterConfigJson.config.ci.chunks.find((o: { type: string; }) => o.type == "EnvConfig").value.environments.dev.db.instance.name;
+        
+        
         args.ampSpannerBackstageSpecOther = yaml.dump({
             "data": {
                 "links": [
@@ -424,6 +426,7 @@ class AmpController {
                 ]
             }
         });
+        args.ampSetupBackstageLinks = `- title: AMP Console\n  url: game.${intDnsRootDomain}:443`
 
         const updatedWorkflow = this.updateWorkflowSpecArguments(workflow, args);
         
