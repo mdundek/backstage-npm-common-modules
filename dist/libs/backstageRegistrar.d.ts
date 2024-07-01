@@ -36,7 +36,7 @@ export declare class BackstageComponentRegistrar {
     private genName;
     private branchName;
     private commitMessage;
-    private k8sCLient;
+    private k8sClient;
     /**
      *
      * @param kubectlInstance
@@ -143,5 +143,10 @@ export declare class BackstageComponentRegistrar {
     *
     */
     registerSystemInCatalog(globalInputs: GlobalInputsParameters): Promise<string>;
+    /**
+     *
+     * @param ctx
+     */
+    deployBackstageCommonWorkflowTemplate(ctx: any): Promise<void>;
 }
 //# sourceMappingURL=backstageRegistrar.d.ts.map
