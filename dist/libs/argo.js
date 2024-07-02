@@ -85,6 +85,7 @@ class ArgoClient {
                     reject(new Error("Service account token is undefined."));
                     return;
                 }
+                console.log("argo submit --log " + workflowFilePath + " --server " + KUBE_API_SERVER + " --token " + SA_TOKEN + " -n argo --insecure-skip-tls-verify --request-timeout 30m");
                 const childProcess = (0, child_process_1.spawn)(`argo`, [
                     "submit",
                     "--log",
@@ -155,7 +156,9 @@ class ArgoClient {
                                 resolve();
                         }
                     }).catch((err) => {
-                        reject(err);
+                        logger.error("Could not fetch workflow status. Logs:");
+                        logger.error(allLogs.join("\n"));
+                        reject(new Error("Could not fetch workflow status."));
                     });
                 });
             });

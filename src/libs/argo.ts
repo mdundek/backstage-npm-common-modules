@@ -59,6 +59,8 @@ class ArgoClient {
                 return;
             }
 
+            console.log("argo submit --log " + workflowFilePath + " --server " + KUBE_API_SERVER + " --token " + SA_TOKEN + " -n argo --insecure-skip-tls-verify --request-timeout 30m")
+
             const childProcess = spawn(`argo`, [
                 "submit",
                 "--log",
@@ -133,7 +135,9 @@ class ArgoClient {
                             resolve();   
                     }
                 }).catch((err: any) => {
-                    reject(err);
+                    logger.error("Could not fetch workflow status. Logs:")
+                    logger.error(allLogs.join("\n"));
+                    reject(new Error("Could not fetch workflow status."));
                 });
             });
         });
