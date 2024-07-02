@@ -75,6 +75,13 @@ class ArgoClient {
      */
     runWorkflow(logger, workflowFilePath, workflowName, proxied, debug) {
         return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const tmplYaml = yield fs.readFile(workflowFilePath, 'utf8');
+                console.log(tmplYaml);
+            }
+            catch (error) {
+                console.log("ERROR =>", error);
+            }
             return new Promise((resolve, reject) => {
                 const KUBE_API_SERVER = this.KUBE_API_SERVER;
                 if (!KUBE_API_SERVER) {
@@ -85,13 +92,6 @@ class ArgoClient {
                 if (!SA_TOKEN) {
                     reject(new Error("Service account token is undefined."));
                     return;
-                }
-                try {
-                    const tmplYaml = fs.readFile(workflowFilePath, 'utf8');
-                    console.log(tmplYaml);
-                }
-                catch (error) {
-                    console.log("ERROR =>", error);
                 }
                 const childProcess = (0, child_process_1.spawn)(`argo`, [
                     "submit",

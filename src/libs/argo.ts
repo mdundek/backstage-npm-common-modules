@@ -47,6 +47,13 @@ class ArgoClient {
      * @param workflowName 
      */
     public async runWorkflow(logger: any, workflowFilePath: string, workflowName: string, proxied?: boolean, debug?: boolean): Promise<any> {
+        try {
+            const tmplYaml = await fs.readFile(workflowFilePath, 'utf8')
+            console.log(tmplYaml)
+        } catch (error) {
+            console.log("ERROR =>", error)
+        }
+        
         return new Promise<void>((resolve, reject) => {
             const KUBE_API_SERVER = this.KUBE_API_SERVER;
             if (!KUBE_API_SERVER) {
@@ -59,12 +66,7 @@ class ArgoClient {
                 return;
             }
 
-            try {
-                const tmplYaml = fs.readFile(workflowFilePath, 'utf8')
-                console.log(tmplYaml)
-            } catch (error) {
-                console.log("ERROR =>", error)
-            }
+            
             
 
             const childProcess = spawn(`argo`, [
