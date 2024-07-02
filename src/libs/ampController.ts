@@ -368,12 +368,14 @@ class AmpController {
         uid = new ShortUniqueId({ length: 10 });
         const workflowFilePath = `./${uid.rnd()}-workflow-proxy.yaml`
 
+        const absolutePath = path.resolve(__dirname, workflowFilePath);
+
         // Write the YAML content to the specified file
-        await fs.writeFile(workflowFilePath, yamlContent, 'utf-8');
+        await fs.writeFile(absolutePath, yamlContent, 'utf-8');
 
         return {
             uidGen: uidGen,
-            workflowFilePath: workflowFilePath,
+            workflowFilePath: absolutePath,
             workflowName: workflowName
         }
     }
