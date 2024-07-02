@@ -92,7 +92,7 @@ class AmpController {
      * @param terraformCleanupBeforeCreate
      * @returns
      */
-    computeArgumentsFile(ampGitlabGroupId, projectTitleName, projectDnsName, teamMailingListEmail, devDnsRootDomain, intDnsRootDomain, ampDataGitRepoUrl, ampCodeGitRepoUrl, targetDevCertManagerIssuerName, targetDevCertManagerRootCertName, targetIntCertManagerIssuerName, targetIntCertManagerRootCertName, oauthClientId, terraformCleanupBeforeCreate) {
+    computeArgumentsFile(ampGitlabGroupId, projectTitleName, projectDnsName, teamMailingListEmail, devDnsRootDomain, intDnsRootDomain, ampDataGitRepoUrl, ampCodeGitRepoUrl, targetDevCertManagerIssuerName, targetDevCertManagerRootCertName, targetIntCertManagerIssuerName, targetIntCertManagerRootCertName, oauthClientId, terraformCleanupBeforeCreate, tempSecretName) {
         // Prepare the Argo Workflow arguments for the Axion installation
         const args = {
             "ampGitlabGroupId": ampGitlabGroupId,
@@ -109,7 +109,7 @@ class AmpController {
             "targetIntCertManagerRootCertName": targetIntCertManagerRootCertName,
             "oauthClientId": oauthClientId,
             "terraformCleanupBeforeCreate": terraformCleanupBeforeCreate,
-            "tempSecretName": "temporary-amp-credentials",
+            "tempSecretName": tempSecretName,
             "tempSecretNamespace": "amp-system",
             "tempSecretGitlabTokenField": "GITLAB_TOKEN",
             "tempSecretGcpJsonKeyField": "GCP_JSON_KEY",
@@ -310,7 +310,7 @@ class AmpController {
             // Compute the arguments for the Amp installation
             ctx.logger.info(' => Preparing for Amp installation...');
             // Update the workflow with the computed arguments
-            const args = this.computeArgumentsFile(ctx.input.gitlabGroupId, ctx.input.projectTitle, ctx.input.projectName, ctx.input.teamMailingList, devDnsRootDomain, intDnsRootDomain, ampDataGitRepoUrl, ampCodeGitRepoUrl, targetDevCertManagerIssuerName, targetDevCertManagerRootCertName, targetIntCertManagerIssuerName, targetIntCertManagerRootCertName, ctx.input.oauthClientId, ctx.input.terraformCleanupBeforeCreate ? true : false);
+            const args = this.computeArgumentsFile(ctx.input.gitlabGroupId, ctx.input.projectTitle, ctx.input.projectName, ctx.input.teamMailingList, devDnsRootDomain, intDnsRootDomain, ampDataGitRepoUrl, ampCodeGitRepoUrl, targetDevCertManagerIssuerName, targetDevCertManagerRootCertName, targetIntCertManagerIssuerName, targetIntCertManagerRootCertName, ctx.input.oauthClientId, ctx.input.terraformCleanupBeforeCreate ? true : false, `tmp-${uidGen}`);
             const gcpProjectId = JSON.parse(ctx.input.cloudCredentials).project_id;
             args.gitlabCredsSecretName = "backstage-secrets";
             args.gitlabCredsSecretNamespace = "backstage-system";

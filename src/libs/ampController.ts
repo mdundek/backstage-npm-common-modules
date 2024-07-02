@@ -75,7 +75,8 @@ class AmpController {
         targetIntCertManagerIssuerName: string,
         targetIntCertManagerRootCertName: string,
         oauthClientId: string,
-        terraformCleanupBeforeCreate: boolean
+        terraformCleanupBeforeCreate: boolean,
+        tempSecretName: string,
     ): any {
         // Prepare the Argo Workflow arguments for the Axion installation
         const args = {
@@ -93,7 +94,7 @@ class AmpController {
             "targetIntCertManagerRootCertName": targetIntCertManagerRootCertName,
             "oauthClientId":  oauthClientId,
             "terraformCleanupBeforeCreate": terraformCleanupBeforeCreate,
-            "tempSecretName": "temporary-amp-credentials",
+            "tempSecretName": tempSecretName,
             "tempSecretNamespace": "amp-system",
             "tempSecretGitlabTokenField": "GITLAB_TOKEN",
             "tempSecretGcpJsonKeyField": "GCP_JSON_KEY",
@@ -331,7 +332,8 @@ class AmpController {
             targetIntCertManagerIssuerName,
             targetIntCertManagerRootCertName,
             ctx.input.oauthClientId,
-            ctx.input.terraformCleanupBeforeCreate ? true : false
+            ctx.input.terraformCleanupBeforeCreate ? true : false,
+            `tmp-${uidGen}`
         );
 
         const gcpProjectId = JSON.parse(ctx.input.cloudCredentials).project_id;
