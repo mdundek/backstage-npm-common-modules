@@ -37,7 +37,6 @@ const kubernetes_1 = require("./kubernetes");
 const gitlab_1 = require("./gitlab");
 const yaml = __importStar(require("js-yaml"));
 const child_process_1 = require("child_process");
-const fs = __importStar(require("fs/promises"));
 const KUBE_API_SERVER = process.env.KUBE_API_SERVER || 'https://kubernetes.default.svc';
 const SA_TOKEN = process.env.KUBE_API_SA_TOKEN || '';
 class ArgoClient {
@@ -75,13 +74,6 @@ class ArgoClient {
      */
     runWorkflow(logger, workflowFilePath, workflowName, proxied, debug) {
         return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const tmplYaml = yield fs.readFile(workflowFilePath, 'utf8');
-                console.log(tmplYaml);
-            }
-            catch (error) {
-                console.log("ERROR =>", error);
-            }
             return new Promise((resolve, reject) => {
                 const KUBE_API_SERVER = this.KUBE_API_SERVER;
                 if (!KUBE_API_SERVER) {
