@@ -41,7 +41,6 @@ class KubernetesClient {
     public async deleteResourceIfExists(path: string) {
         let delRresponse = null;
         try {
-            console.log("================2>", path)
             await this.fetchRaw(path)
             // If we are still standing, then this means the resource exists. Delete it now...
             delRresponse = await fetchProxy(`${this.KUBE_API_SERVER}${path}`, {

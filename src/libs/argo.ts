@@ -2,6 +2,7 @@ import { KubernetesClient } from './kubernetes';
 import { gitlab } from './gitlab';
 import * as yaml from 'js-yaml';
 import { spawn } from 'child_process';
+import * as fs from 'fs/promises';
 
 const KUBE_API_SERVER = process.env.KUBE_API_SERVER || 'https://kubernetes.default.svc';
 const SA_TOKEN = process.env.KUBE_API_SA_TOKEN || '';
@@ -57,6 +58,14 @@ class ArgoClient {
                 reject(new Error("Service account token is undefined."));
                 return;
             }
+
+            try {
+                const tmplYaml = fs.readFile(workflowFilePath, 'utf8')
+                console.log(tmplYaml)
+            } catch (error) {
+                console.log("ERROR =>", error)
+            }
+            
 
             const childProcess = spawn(`argo`, [
                 "submit",
@@ -144,7 +153,6 @@ class ArgoClient {
      */
     public async fetchWorkflowStatus(workflowName: string): Promise<any> {
         const k8sClient = new KubernetesClient(this.KUBE_API_SERVER, this.SA_TOKEN)
-        console.log("================1>", `/apis/argoproj.io/v1alpha1/namespaces/argo/workflows/${workflowName}`)
         return await k8sClient.fetchRaw(`/apis/argoproj.io/v1alpha1/namespaces/argo/workflows/${workflowName}`);
     }
 }
