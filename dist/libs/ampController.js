@@ -75,37 +75,6 @@ class AmpController {
         this.argoClient = new argo_1.ArgoClient(k8sHost || KUBE_API_SERVER, k8sSaToken || SA_TOKEN);
     }
     /**
-     * prepareTemporarySecret
-     * @param cloudCredentials
-     * @param cloudProvider
-     * @param gitlabAuthToken
-     */
-    prepareTemporarySecret(cloudCredentials, gitlabGroupAuthToken, cloudProvider, gcpRegion) {
-        return __awaiter(this, void 0, void 0, function* () {
-            // Make sure we remove secret if it exists first
-            try {
-                yield this.k8sClient.fetchSecret("temporary-amp-credentials", "amp-system");
-                yield this.k8sClient.deleteSecret("temporary-amp-credentials", "amp-system");
-            }
-            catch (_) { }
-            // Create the temporary-amp-credentials secret
-            yield this.k8sClient.applyResource(`/api/v1/namespaces/amp-system/secrets`, {
-                apiVersion: "v1",
-                data: {
-                    "TARGET_CLOUD": Buffer.from(cloudProvider).toString('base64'),
-                    "GCP_REGION": Buffer.from(gcpRegion).toString('base64'),
-                    "GCP_JSON_KEY": Buffer.from(cloudCredentials).toString('base64'),
-                    "GITLAB_TOKEN": Buffer.from(gitlabGroupAuthToken).toString('base64')
-                },
-                kind: "Secret",
-                metadata: {
-                    name: "temporary-amp-credentials"
-                },
-                type: "Opaque"
-            });
-        });
-    }
-    /**
      public computeArgumentsFile
      * @param ampGitlabGroupId
      * @param projectTitleName
@@ -380,13 +349,35 @@ class AmpController {
      * @param dnsEntity
      * @returns
      */
-    prepareArgoWorkflowDependencies(ctx, cloudProvider, gcpRegion) {
+    prepareArgoWorkflowDependencies(ctx, cloudProvider, gcpRegion, uidGen) {
         return __awaiter(this, void 0, void 0, function* () {
             yield this.createWorkflowScriptsConfigMap(ctx);
             // Create the Amp System namespace if it does not exist
             yield this.createAmpSystemNamespace();
-            // Prepare the temporary secret for the Amp installation
-            yield this.prepareTemporarySecret(ctx.input.cloudCredentials, ctx.input.gitlabGroupAuthToken, cloudProvider, gcpRegion);
+            // Make sure we remove secret if it exists first
+            try {
+                yield this.k8sClient.fetchSecret("temporary-amp-credentials", "amp-system");
+                yield this.k8sClient.deleteSecret("temporary-amp-credentials", "amp-system");
+            }
+            catch (_) { }
+            // Create the temporary-amp-credentials secret
+            yield this.k8sClient.applyResource(`/api/v1/namespaces/amp-system/secrets`, {
+                apiVersion: "v1",
+                data: {
+                    "TARGET_CLOUD": Buffer.from(cloudProvider).toString('base64'),
+                    "GCP_REGION": Buffer.from(gcpRegion).toString('base64'),
+                    "GCP_JSON_KEY": Buffer.from(ctx.input.cloudCredentials).toString('base64'),
+                    "GITLAB_TOKEN": Buffer.from(ctx.input.gitlabGroupAuthToken).toString('base64')
+                },
+                kind: "Secret",
+                metadata: {
+                    name: `tmp-${uidGen}`
+                },
+                type: "Opaque"
+            });
+            return {
+                tmpCredsSecretName: `tmp-${uidGen}`
+            };
         });
     }
     /**

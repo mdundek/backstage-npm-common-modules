@@ -8,13 +8,6 @@ declare class AmpController {
      */
     constructor(k8sHost?: string, k8sSaToken?: string);
     /**
-     * prepareTemporarySecret
-     * @param cloudCredentials
-     * @param cloudProvider
-     * @param gitlabAuthToken
-     */
-    prepareTemporarySecret(cloudCredentials: string, gitlabGroupAuthToken: string, cloudProvider: string, gcpRegion: string): Promise<void>;
-    /**
      public computeArgumentsFile
      * @param ampGitlabGroupId
      * @param projectTitleName
@@ -92,7 +85,9 @@ declare class AmpController {
      * @param dnsEntity
      * @returns
      */
-    prepareArgoWorkflowDependencies(ctx: any, cloudProvider: string, gcpRegion: string): Promise<void>;
+    prepareArgoWorkflowDependencies(ctx: any, cloudProvider: string, gcpRegion: string, uidGen: string): Promise<{
+        tmpCredsSecretName: string;
+    }>;
     /**
      *
      * @param ctx
