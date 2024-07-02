@@ -71,6 +71,7 @@ class KubernetesClient {
         return __awaiter(this, void 0, void 0, function* () {
             let delRresponse = null;
             try {
+                console.log("================2>", path);
                 yield this.fetchRaw(path);
                 // If we are still standing, then this means the resource exists. Delete it now...
                 delRresponse = yield fetchProxy(`${this.KUBE_API_SERVER}${path}`, {

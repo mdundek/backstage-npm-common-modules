@@ -483,7 +483,7 @@ class AmpController {
             await this.k8sClient.deleteResourceIfExists(`/api/v1/namespaces/argo/configmaps/script-config-map`);
             await this.k8sClient.applyResource(`/api/v1/namespaces/argo/configmaps`, configMap);
         } finally {
-            await fs.rmdir(tmpFolder, { recursive: true });
+            await fs.rm(tmpFolder, { recursive: true });
         }
     }
 

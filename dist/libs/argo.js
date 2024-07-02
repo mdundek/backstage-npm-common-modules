@@ -168,6 +168,7 @@ class ArgoClient {
     fetchWorkflowStatus(workflowName) {
         return __awaiter(this, void 0, void 0, function* () {
             const k8sClient = new kubernetes_1.KubernetesClient(this.KUBE_API_SERVER, this.SA_TOKEN);
+            console.log("================1>", `/apis/argoproj.io/v1alpha1/namespaces/argo/workflows/${workflowName}`);
             return yield k8sClient.fetchRaw(`/apis/argoproj.io/v1alpha1/namespaces/argo/workflows/${workflowName}`);
         });
     }

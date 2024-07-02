@@ -427,7 +427,7 @@ class AmpController {
                 yield this.k8sClient.applyResource(`/api/v1/namespaces/argo/configmaps`, configMap);
             }
             finally {
-                yield fs.rmdir(tmpFolder, { recursive: true });
+                yield fs.rm(tmpFolder, { recursive: true });
             }
         });
     }
