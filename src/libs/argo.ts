@@ -83,7 +83,7 @@ class ArgoClient {
             };
             resetLogTimeout(); // Initialize the timeout at the start
 
-            const pattern1 = /Axion\sWorkflow\sStep:.+/;
+            const pattern1 = /Workflow\sStep:.+/;
             const pattern2 = /.+\s=>\s.+/;
             childProcess.stdout.on('data', (data:any) => {
                 const strippedData = data.toString().replace(/\x1b\[[0-9;]*m/g, '');
