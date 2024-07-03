@@ -121,11 +121,11 @@ class ArgoClient {
                         else {
                             if (pattern1.test(line)) {
                                 logger.info("");
-                                logger.info(` ${line.substring(line.indexOf(":") + 1, line.length).trim()}`);
+                                logger.info(` Workflow Step: ${line.split("Workflow Step")[1].trim()}`);
                                 resetLogTimeout();
                             }
                             else if (pattern2.test(line)) {
-                                logger.info(` ${line.substring(line.indexOf(":") + 1, line.length).trim()}`);
+                                logger.info(` => ${line.split("=>")[1].trim()}`);
                                 resetLogTimeout();
                             }
                         }
