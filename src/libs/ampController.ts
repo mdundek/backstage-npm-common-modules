@@ -451,18 +451,6 @@ class AmpController {
 
                 fs.writeFile(path.join(tmpFolder, path.basename(scriptPath)), b64Buffer, 'utf-8');            
             }
-            scriptsFiles = await gitlab.getFilesFromFolder(
-                workflowsRepoProjectId, 
-                "amp/scripts/libs", 
-                branchOrTag, 
-                personalAccessToken
-            );
-            for(let scriptPath of scriptsFiles) {
-                const scriptCode = await gitlab.fetchFile(workflowsRepoProjectId, scriptPath, branchOrTag, personalAccessToken);
-                const b64Buffer = Buffer.from(scriptCode.content, 'base64');
-
-                fs.writeFile(path.join(tmpFolder, path.basename(scriptPath)), b64Buffer, 'utf-8');            
-            }
 
             // Create ConfigMap from files
             ctx.logger.info(' => Creating ConfigMap from scripts for workflow...');
