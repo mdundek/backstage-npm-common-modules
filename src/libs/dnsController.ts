@@ -150,19 +150,23 @@ class DNSController extends ControllerBase {
      * prepareArgoWorkflowDependencies
      * @param ctx 
      * @param nakedRepo 
+     * @param providerSecretName 
+     * @param providerSecretNamespace 
      */
     public async prepareArgoWorkflowDependencies(
         ctx: any, 
-        nakedRepo: string, 
+        nakedRepo: string,
+        providerSecretName: string,
+        providerSecretNamespace: string
     ) {
         // Prepare the temporary secret for the DNS workflow setup
         // Create the provider secret for AWS
-        let providerSecretName = `creds-dns-${BackstageComponentRegistrar.normalizeSystemRef(ctx.input.targetSystem)}`
+        
         if (ctx.input.userCloudProvider == "AWS") {
             await this.createAwsProviderConfigSecret(
                 this.k8sClient,
                 providerSecretName,
-                "crossplane-system",
+                providerSecretNamespace,
                 ctx.input.aws_access_key_id,
                 ctx.input.aws_secret_access_key
             );
@@ -172,7 +176,7 @@ class DNSController extends ControllerBase {
             await this.createGcpProviderConfigSecret(
                 this.k8sClient,
                 providerSecretName,
-                "crossplane-system",
+                providerSecretNamespace,
                 ctx.input.gcp_credentials
             )
         }
@@ -182,11 +186,6 @@ class DNSController extends ControllerBase {
 
         // Create the Workflow Service Account if it does not exist
         await this.createArgoWorkflowAdminSa(this.k8sClient);
-
-        return {
-            tmpCredsSecretName: providerSecretName,
-            tmpCredsSecretNamespace: "crossplane-system"
-        };
     }
 
     /**

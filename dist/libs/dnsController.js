@@ -154,27 +154,24 @@ class DNSController extends controllerBase_1.ControllerBase {
      * prepareArgoWorkflowDependencies
      * @param ctx
      * @param nakedRepo
+     * @param providerSecretName
+     * @param providerSecretNamespace
      */
-    prepareArgoWorkflowDependencies(ctx, nakedRepo) {
+    prepareArgoWorkflowDependencies(ctx, nakedRepo, providerSecretName, providerSecretNamespace) {
         return __awaiter(this, void 0, void 0, function* () {
             // Prepare the temporary secret for the DNS workflow setup
             // Create the provider secret for AWS
-            let providerSecretName = `creds-dns-${backstageRegistrar_1.BackstageComponentRegistrar.normalizeSystemRef(ctx.input.targetSystem)}`;
             if (ctx.input.userCloudProvider == "AWS") {
-                yield this.createAwsProviderConfigSecret(this.k8sClient, providerSecretName, "crossplane-system", ctx.input.aws_access_key_id, ctx.input.aws_secret_access_key);
+                yield this.createAwsProviderConfigSecret(this.k8sClient, providerSecretName, providerSecretNamespace, ctx.input.aws_access_key_id, ctx.input.aws_secret_access_key);
             }
             // Create the provider secret for GCP
             else if (ctx.input.userCloudProvider == "GCP") {
-                yield this.createGcpProviderConfigSecret(this.k8sClient, providerSecretName, "crossplane-system", ctx.input.gcp_credentials);
+                yield this.createGcpProviderConfigSecret(this.k8sClient, providerSecretName, providerSecretNamespace, ctx.input.gcp_credentials);
             }
             // Create the Argo Pull Secret if it does not exist
             yield this.createArgoPullSecret(this.k8sClient, nakedRepo, ctx.input.ociAuthUsername, ctx.input.ociAuthToken);
             // Create the Workflow Service Account if it does not exist
             yield this.createArgoWorkflowAdminSa(this.k8sClient);
-            return {
-                tmpCredsSecretName: providerSecretName,
-                tmpCredsSecretNamespace: "crossplane-system"
-            };
         });
     }
     /**

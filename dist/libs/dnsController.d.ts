@@ -38,11 +38,10 @@ declare class DNSController extends ControllerBase {
      * prepareArgoWorkflowDependencies
      * @param ctx
      * @param nakedRepo
+     * @param providerSecretName
+     * @param providerSecretNamespace
      */
-    prepareArgoWorkflowDependencies(ctx: any, nakedRepo: string): Promise<{
-        tmpCredsSecretName: string;
-        tmpCredsSecretNamespace: string;
-    }>;
+    prepareArgoWorkflowDependencies(ctx: any, nakedRepo: string, providerSecretName: string, providerSecretNamespace: string): Promise<void>;
     /**
      * deploy
      * @param ctx
