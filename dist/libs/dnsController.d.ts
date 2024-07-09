@@ -29,7 +29,7 @@ declare class DNSController extends ControllerBase {
      * @param ctx
      * @returns
      */
-    prepareWorkflow(ctx: any, providerSecretName: string): Promise<{
+    prepareWorkflow(ctx: any, providerSecretName: string, providerSecretNamespace: string): Promise<{
         uidGen: string;
         workflowFilePath: string;
         workflowName: string;

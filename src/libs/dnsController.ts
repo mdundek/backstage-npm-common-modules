@@ -99,7 +99,8 @@ class DNSController extends ControllerBase {
      */
     public async prepareWorkflow(
         ctx: any,
-        providerSecretName: string
+        providerSecretName: string,
+        providerSecretNamespace: string
     ) {
         // Generate a unique name for the workflow
         let uid = new ShortUniqueId({ length: 5 });
@@ -116,7 +117,7 @@ class DNSController extends ControllerBase {
 
         // Update the workflow with the computed arguments
         const args = this.computeArgumentsFile(
-            "crossplane-system", 
+            providerSecretNamespace, 
             providerSecretName, 
             JSON.parse(ctx.input.gcp_credentials).project_id, 
             ctx

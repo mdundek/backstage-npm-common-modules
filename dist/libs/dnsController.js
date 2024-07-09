@@ -118,7 +118,7 @@ class DNSController extends controllerBase_1.ControllerBase {
      * @param ctx
      * @returns
      */
-    prepareWorkflow(ctx, providerSecretName) {
+    prepareWorkflow(ctx, providerSecretName, providerSecretNamespace) {
         return __awaiter(this, void 0, void 0, function* () {
             // Generate a unique name for the workflow
             let uid = new short_unique_id_1.default({ length: 5 });
@@ -132,7 +132,7 @@ class DNSController extends controllerBase_1.ControllerBase {
             // Compute the arguments for the Axion installation
             ctx.logger.info(' => Preparing for DNS Zone setup...');
             // Update the workflow with the computed arguments
-            const args = this.computeArgumentsFile("crossplane-system", providerSecretName, JSON.parse(ctx.input.gcp_credentials).project_id, ctx);
+            const args = this.computeArgumentsFile(providerSecretNamespace, providerSecretName, JSON.parse(ctx.input.gcp_credentials).project_id, ctx);
             const updatedWorkflow = this.updateWorkflowSpecArguments(workflow, args);
             let workflowName = `${uidGen}-route53-hosted-zone`;
             updatedWorkflow.metadata.name = workflowName;
