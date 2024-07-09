@@ -537,7 +537,7 @@ fi`);
         const certManagerRootClusterIssuer = updatedWorkflowTmp.spec.arguments.parameters.find((param: { name: string; }) => param.name === 'rootDomainAxionClusterIssuerName').value;
         const createRootDomainDefaultCertificate = updatedWorkflowTmp.spec.arguments.parameters.find((param: { name: string; }) => param.name === 'createRootDomainDefaultCertificate').value;
         const rootDomainDefaultCertificateName = updatedWorkflowTmp.spec.arguments.parameters.find((param: { name: string; }) => param.name === 'rootDomainDefaultCertificateName').value;
-
+       
         // ExternalDns
         const externalDnsRepo = updatedWorkflowTmp.spec.arguments.parameters.find((param: { name: string; }) => param.name === 'externalDnsHelmRepo').value;	
         const externalDnsChart = updatedWorkflowTmp.spec.arguments.parameters.find((param: { name: string; }) => param.name === 'externalDnsHelmChart').value;
@@ -751,7 +751,7 @@ fi`);
             // Parse the YAML content
             ctx.logger.info(` => Applying template ${templatePath}...`);
             // Apply to remote cluster
-            this.k8sClient.applyYaml(b64Buffer.toString('utf-8'))
+            await this.k8sClient.applyYaml(b64Buffer.toString('utf-8'))
         }
     }
 }

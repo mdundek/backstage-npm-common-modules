@@ -8,7 +8,10 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "declaration": true, // Add this line
-    "declarationMap": true // Generate source maps for declaration files (optional for debugging)
+    "declarationMap": true, // Generate source maps for declaration files (optional for debugging)
+    "lib": [
+          "ES2021.String"
+    ]
   },
   "include": ["src/**/*"]
 }

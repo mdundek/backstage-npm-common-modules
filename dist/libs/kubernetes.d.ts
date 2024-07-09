@@ -1,3 +1,4 @@
+/// <reference types="node" />
 declare class KubernetesClient {
     private KUBE_API_SERVER?;
     private SA_TOKEN?;
@@ -18,7 +19,7 @@ declare class KubernetesClient {
      * @param body
      * @returns
      */
-    applyResource(path: string, body: any, ignoreAlreadyExistError?: boolean): Promise<any>;
+    applyResource(path: string, body: any, ignoreAlreadyExistError?: boolean): Promise<unknown>;
     /**
      *
      * @param secretName
@@ -47,7 +48,7 @@ declare class KubernetesClient {
      * @param path
      * @returns
      */
-    fetchRaw(path: string): Promise<any>;
+    fetchRaw(path: string): Promise<unknown>;
     /**
      * namespaceExists
      * @param namespace

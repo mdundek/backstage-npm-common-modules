@@ -726,7 +726,7 @@ fi`);
                 // Parse the YAML content
                 ctx.logger.info(` => Applying template ${templatePath}...`);
                 // Apply to remote cluster
-                this.k8sClient.applyYaml(b64Buffer.toString('utf-8'));
+                yield this.k8sClient.applyYaml(b64Buffer.toString('utf-8'));
             }
         });
     }

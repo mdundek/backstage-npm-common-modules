@@ -516,7 +516,7 @@ class AmpController {
         // Parse the YAML content
         ctx.logger.info(` => Applying template backstage-common.yaml...`);
         // Apply to remote cluster
-        this.k8sClient.applyYaml(b64Buffer.toString('utf-8'))
+        await this.k8sClient.applyYaml(b64Buffer.toString('utf-8'))
     }
 }
 
