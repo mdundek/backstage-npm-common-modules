@@ -1,13 +1,15 @@
 import { ControllerBase } from './controllerBase';
+import { KubernetesClient } from './kubernetes';
+import { ArgoClient } from './argo';
 declare class DNSController extends ControllerBase {
-    private k8sClient;
-    private argoClient;
+    k8sClient: KubernetesClient;
+    argoClient: ArgoClient;
     /**
-     *
+     * constructor
      * @param k8sHost
      * @param k8sSaToken
      */
-    constructor(k8sHost: string, k8sSaToken: string);
+    constructor(k8sHost?: string, k8sSaToken?: string);
     /**
      * computeArgumentsFile
      * @param userAccountProviderSecretNamespace
