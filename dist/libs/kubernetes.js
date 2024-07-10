@@ -225,7 +225,6 @@ class KubernetesClient {
      */
     namespaceExists(namespace) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("====> 1");
             const response = yield fetchProxy(`${this.KUBE_API_SERVER}/api/v1/namespaces/${namespace}`, {
                 method: 'GET',
                 headers: {
@@ -233,7 +232,6 @@ class KubernetesClient {
                     'Authorization': `Bearer ${this.SA_TOKEN}`
                 },
             });
-            console.log(response);
             if (response.status === 200) {
                 return true;
             }
@@ -251,15 +249,13 @@ class KubernetesClient {
      */
     createNamespace(namespace) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("====> 2");
-            const response = yield this.applyResource(`${this.KUBE_API_SERVER}/api/v1/namespaces`, {
+            const response = yield this.applyResource(`/api/v1/namespaces`, {
                 apiVersion: "v1",
                 kind: "Namespace",
                 metadata: {
                     name: namespace,
                 },
             });
-            console.log(response);
             // Check if the response is ok (status code 200-299)
             if (!response.ok) {
                 throw new Error(`Failed to create namespace, status: ${response.status}`);
@@ -274,7 +270,6 @@ class KubernetesClient {
      */
     hasDeployment(name, namespace) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("====> 3");
             const response = yield fetchProxy(`${this.KUBE_API_SERVER}/apis/apps/v1/namespaces/${namespace}/deployments/${name}`, {
                 method: 'GET',
                 headers: {
@@ -282,7 +277,6 @@ class KubernetesClient {
                     'Authorization': `Bearer ${this.SA_TOKEN}`
                 },
             });
-            console.log(response);
             if (response.status === 200) {
                 return true;
             }
@@ -301,13 +295,11 @@ class KubernetesClient {
      */
     deployRemoteYaml(yamlLocalionUrl, targetNamespace) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("====> 4");
             // Fetch the YAML content from the URL
             const response = yield fetch(yamlLocalionUrl);
             if (!response.ok) {
                 throw new Error(`Failed to fetch YAML: ${response.statusText}`);
             }
-            console.log(response);
             const yamlContent = yield response.text();
             // Parse the YAML content
             yield this.applyYaml(yamlContent, targetNamespace);

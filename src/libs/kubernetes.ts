@@ -179,7 +179,6 @@ class KubernetesClient {
                 'Authorization': `Bearer ${this.SA_TOKEN}`
             }
         });
-
         // Check if the response is ok (status code 200-299)
         if (!response.ok) {
             throw new Error(`Failed to fetch resource, status: ${response.status}`);
@@ -195,7 +194,6 @@ class KubernetesClient {
      * @returns 
      */
     public async namespaceExists(namespace: string) {
-        console.log("====> 1")
         const response = await fetchProxy(`${this.KUBE_API_SERVER}/api/v1/namespaces/${namespace}`, {
             method: 'GET',
             headers: {
@@ -203,7 +201,6 @@ class KubernetesClient {
                 'Authorization': `Bearer ${this.SA_TOKEN}`
             },
         });
-        console.log(response);
         if (response.status === 200) {
             return true;
         } else if (response.status === 404) {
@@ -218,15 +215,13 @@ class KubernetesClient {
      * @param namespace 
      */
     public async createNamespace(namespace: string) {
-        console.log("====> 2")
-        const response:any = await this.applyResource(`${this.KUBE_API_SERVER}/api/v1/namespaces`, {
+        const response:any = await this.applyResource(`/api/v1/namespaces`, {
             apiVersion: "v1",
             kind: "Namespace",
             metadata: {
               name: namespace,
             },
         })
-        console.log(response);
         // Check if the response is ok (status code 200-299)
         if (!response.ok) {
             throw new Error(`Failed to create namespace, status: ${response.status}`);
@@ -240,7 +235,6 @@ class KubernetesClient {
      * @returns 
      */
     public async hasDeployment(name: string, namespace: string) {
-        console.log("====> 3")
         const response = await fetchProxy(`${this.KUBE_API_SERVER}/apis/apps/v1/namespaces/${namespace}/deployments/${name}`, {
             method: 'GET',
             headers: {
@@ -248,7 +242,6 @@ class KubernetesClient {
                 'Authorization': `Bearer ${this.SA_TOKEN}`
             },
         });
-        console.log(response);
         if (response.status === 200) {
             return true;
         } else if (response.status === 404) {
@@ -267,14 +260,11 @@ class KubernetesClient {
         yamlLocalionUrl: string, 
         targetNamespace: string
     ) {
-        console.log("====> 4")
         // Fetch the YAML content from the URL
         const response = await fetch(yamlLocalionUrl);
         if (!response.ok) {
             throw new Error(`Failed to fetch YAML: ${response.statusText}`);
         }
-
-        console.log(response);
         const yamlContent = await response.text();
     
         // Parse the YAML content
