@@ -9,7 +9,7 @@ export interface GitlabInputsParameters {
 }
 
 export interface GlobalInputsParameters {
-    recordType: string;
+    recordType?: string;
     resourceOwnerRef?: string;
     annotationNeotekType?: string;
     normalizedName: string;
@@ -404,7 +404,7 @@ spec:
      */
      public async registerSystemInCatalog(globalInputs: GlobalInputsParameters) {
         this.globalInputs = globalInputs;
-        this.genName = `${this.globalInputs.recordType}-${this.globalInputs.normalizedName}`;
+        this.genName = `${this.globalInputs.normalizedName}`;
         this.gitlabToken = "";
         this.gitlabProjectId = ""
 

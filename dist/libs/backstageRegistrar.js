@@ -372,7 +372,7 @@ spec:
     registerSystemInCatalog(globalInputs) {
         return __awaiter(this, void 0, void 0, function* () {
             this.globalInputs = globalInputs;
-            this.genName = `${this.globalInputs.recordType}-${this.globalInputs.normalizedName}`;
+            this.genName = `${this.globalInputs.normalizedName}`;
             this.gitlabToken = "";
             this.gitlabProjectId = "";
             this.gitlabToken = yield this.getGitlabToken();

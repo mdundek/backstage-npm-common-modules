@@ -5,7 +5,7 @@ export interface GitlabInputsParameters {
     gitlabCredsSecretProjectIdField: string;
 }
 export interface GlobalInputsParameters {
-    recordType: string;
+    recordType?: string;
     resourceOwnerRef?: string;
     annotationNeotekType?: string;
     normalizedName: string;
