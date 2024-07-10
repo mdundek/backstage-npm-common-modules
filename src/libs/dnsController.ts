@@ -95,6 +95,8 @@ class DNSController extends ControllerBase {
     /**
      * prepareWorkflow
      * @param ctx 
+     * @param providerSecretName 
+     * @param providerSecretNamespace 
      * @returns 
      */
     public async prepareWorkflow(

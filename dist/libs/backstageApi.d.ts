@@ -6,6 +6,7 @@ export declare const backstageApi: {
     findAxionInstancesForCluster: (clusterRef: string, token: string) => Promise<any>;
     deleteByUid: (uid: string, token: string) => Promise<void>;
     addNewLocation: (catalogYamlPath: string, token: string) => Promise<void>;
+    unregisterLocation: (kind: string, namespace: string, name: string, token: string) => Promise<void>;
     refreshLocations: (token: string) => Promise<void>;
 };
 //# sourceMappingURL=backstageApi.d.ts.map

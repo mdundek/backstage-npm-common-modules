@@ -27,6 +27,8 @@ declare class DNSController extends ControllerBase {
     /**
      * prepareWorkflow
      * @param ctx
+     * @param providerSecretName
+     * @param providerSecretNamespace
      * @returns
      */
     prepareWorkflow(ctx: any, providerSecretName: string, providerSecretNamespace: string): Promise<{

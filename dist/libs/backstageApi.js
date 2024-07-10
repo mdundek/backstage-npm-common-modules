@@ -134,6 +134,34 @@ exports.backstageApi = {
         }
         yield exports.backstageApi.refreshLocations(token);
     }),
+    unregisterLocation: (kind, namespace, name, token) => __awaiter(void 0, void 0, void 0, function* () {
+        let response = yield fetch(`http://localhost:7007/api/catalog/locations/by-entity/${kind}/${namespace}/${name}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+            }
+        });
+        if (!response.ok) {
+            console.log(response);
+            console.error(`Failed to lookup entity: ${name}`);
+            throw new Error(`Failed to lookup entity: ${name}`);
+        }
+        const data = yield response.json();
+        response = yield fetch(`http://localhost:7007/api/catalog/locations/${data.id}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+            }
+        });
+        if (!response.ok) {
+            console.log(response);
+            console.error(`Failed to delete entity location from catalog: ${name}`);
+            throw new Error(`Failed to delete entity location from catalog: ${name}`);
+        }
+        yield exports.backstageApi.refreshLocations(token);
+    }),
     refreshLocations: (token) => __awaiter(void 0, void 0, void 0, function* () {
         const response = yield fetch("http://localhost:7007/api/catalog/refresh", {
             method: 'POST',

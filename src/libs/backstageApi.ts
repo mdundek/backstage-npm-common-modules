@@ -44,7 +44,7 @@ export const backstageApi = {
             console.error(`Failed to fetch file from GitLab: ${url}`);
             throw new Error(`Failed to fetch file from GitLab: ${response.statusText}`);
         }
-        const data = await response.json();
+        const data:any = await response.json();
         return data.metadata.uid;
     },
     // Find entries with dependencies to this component
@@ -65,7 +65,7 @@ export const backstageApi = {
             console.error(`Failed to find components: ${url}`);
             throw new Error(`Failed to find components: ${response.statusText}`);
         }
-        const data = await response.json();
+        const data:any = await response.json();
         return data.items;
     },
     // Find entries with dependencies to this component
@@ -87,7 +87,7 @@ export const backstageApi = {
             console.error(`Failed to find components: ${url}`);
             throw new Error(`Failed to find components: ${response.statusText}`);
         }
-        const data = await response.json();
+        const data:any = await response.json();
         return data.items;
     },
     // Find entries with dependencies to this component
@@ -108,7 +108,7 @@ export const backstageApi = {
             console.error(`Failed to find components: ${url}`);
             throw new Error(`Failed to find components: ${response.statusText}`);
         }
-        const data = await response.json();
+        const data:any = await response.json();
         return data.items;
     },
     // Upload a text file to a GitLab repository
@@ -150,6 +150,44 @@ export const backstageApi = {
         if (!response.ok) {
             console.error(`Failed to add new URL: ${catalogYamlPath}`);
             throw new Error(`Failed to add new URL: ${catalogYamlPath}`);
+        }
+
+        await backstageApi.refreshLocations(token);
+    },
+    unregisterLocation: async (
+        kind: string,
+        namespace: string,
+        name: string,
+        token: string,
+    ) => {
+        let response = await fetch(`http://localhost:7007/api/catalog/locations/by-entity/${kind}/${namespace}/${name}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+            }
+        });
+
+        if (!response.ok) {
+            console.log(response);
+            console.error(`Failed to lookup entity: ${name}`);
+            throw new Error(`Failed to lookup entity: ${name}`);
+        }
+
+        const data:any = await response.json();
+
+        response = await fetch(`http://localhost:7007/api/catalog/locations/${data.id}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+            }
+        });
+
+        if (!response.ok) {
+            console.log(response);
+            console.error(`Failed to delete entity location from catalog: ${name}`);
+            throw new Error(`Failed to delete entity location from catalog: ${name}`);
         }
 
         await backstageApi.refreshLocations(token);
