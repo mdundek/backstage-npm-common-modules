@@ -20,7 +20,7 @@ declare class DNSController extends ControllerBase {
      * @param ctx
      * @returns
      */
-    computeArgumentsFile(userAccountProviderSecretNamespace: string, userAccountProviderSecretName: string, gcpProjectId: string, secretNameDomainOwnerAccount: string, secretNamespaceDomainOwnerAccount: string, ctx: any): any;
+    computeArgumentsFile(userAccountProviderSecretNamespace: string, userAccountProviderSecretName: string, gcpProjectId: string, secretNameDomainOwnerAccount: string, secretNamespaceDomainOwnerAccount: string, domainOwnerProviderConfigName: string, ctx: any): any;
     /**
      * validateCredentials
      * @param ctx
@@ -35,7 +35,7 @@ declare class DNSController extends ControllerBase {
      * @param domainOwnerSecretNamespace
      * @returns
      */
-    prepareWorkflow(ctx: any, providerSecretName: string, providerSecretNamespace: string, domainOwnerSecretName: string, domainOwnerSecretNamespace: string): Promise<{
+    prepareWorkflow(ctx: any, providerSecretName: string, providerSecretNamespace: string, domainOwnerSecretName: string, domainOwnerSecretNamespace: string, domainOwnerProviderConfigName: string): Promise<{
         uidGen: string;
         workflowFilePath: string;
         workflowName: string;

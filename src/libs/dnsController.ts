@@ -41,6 +41,7 @@ class DNSController extends ControllerBase {
         gcpProjectId: string,
         secretNameDomainOwnerAccount: string,
         secretNamespaceDomainOwnerAccount: string,
+        domainOwnerProviderConfigName: string,
         ctx: any): any {
 
         const systemNormalizedName = BackstageComponentRegistrar.normalizeSystemRef(ctx.input.targetSystem)
@@ -66,7 +67,7 @@ class DNSController extends ControllerBase {
             "providerConfigNameUserAccount": `${systemNormalizedName}-dns-provider-config`,
             "providerSecretNameUserAccount": userAccountProviderSecretName,
             "providerSecretNamespaceUserAccount": userAccountProviderSecretNamespace,
-            "providerConfigNameDomainOwnerAccount": ctx.input.domainOwnerProviderConfigName,
+            "providerConfigNameDomainOwnerAccount": domainOwnerProviderConfigName,
             "providerSecretNameDomainOwnerAccount": secretNameDomainOwnerAccount,
             "providerSecretNamespaceDomainOwnerAccount": secretNamespaceDomainOwnerAccount,
         };
@@ -109,6 +110,7 @@ class DNSController extends ControllerBase {
         providerSecretNamespace: string,
         domainOwnerSecretName: string,
         domainOwnerSecretNamespace: string,
+        domainOwnerProviderConfigName: string
     ) {
         // Generate a unique name for the workflow
         let uid = new ShortUniqueId({ length: 5 });
@@ -130,6 +132,7 @@ class DNSController extends ControllerBase {
             JSON.parse(ctx.input.gcp_credentials).project_id,
             domainOwnerSecretName,
             domainOwnerSecretNamespace,
+            domainOwnerProviderConfigName,
             ctx
         );
 

@@ -67,7 +67,7 @@ class DNSController extends controllerBase_1.ControllerBase {
      * @param ctx
      * @returns
      */
-    computeArgumentsFile(userAccountProviderSecretNamespace, userAccountProviderSecretName, gcpProjectId, secretNameDomainOwnerAccount, secretNamespaceDomainOwnerAccount, ctx) {
+    computeArgumentsFile(userAccountProviderSecretNamespace, userAccountProviderSecretName, gcpProjectId, secretNameDomainOwnerAccount, secretNamespaceDomainOwnerAccount, domainOwnerProviderConfigName, ctx) {
         const systemNormalizedName = backstageRegistrar_1.BackstageComponentRegistrar.normalizeSystemRef(ctx.input.targetSystem);
         // Prepare the Argo Workflow arguments for the Axion installation
         const args = {
@@ -90,7 +90,7 @@ class DNSController extends controllerBase_1.ControllerBase {
             "providerConfigNameUserAccount": `${systemNormalizedName}-dns-provider-config`,
             "providerSecretNameUserAccount": userAccountProviderSecretName,
             "providerSecretNamespaceUserAccount": userAccountProviderSecretNamespace,
-            "providerConfigNameDomainOwnerAccount": ctx.input.domainOwnerProviderConfigName,
+            "providerConfigNameDomainOwnerAccount": domainOwnerProviderConfigName,
             "providerSecretNameDomainOwnerAccount": secretNameDomainOwnerAccount,
             "providerSecretNamespaceDomainOwnerAccount": secretNamespaceDomainOwnerAccount,
         };
@@ -122,7 +122,7 @@ class DNSController extends controllerBase_1.ControllerBase {
      * @param domainOwnerSecretNamespace
      * @returns
      */
-    prepareWorkflow(ctx, providerSecretName, providerSecretNamespace, domainOwnerSecretName, domainOwnerSecretNamespace) {
+    prepareWorkflow(ctx, providerSecretName, providerSecretNamespace, domainOwnerSecretName, domainOwnerSecretNamespace, domainOwnerProviderConfigName) {
         return __awaiter(this, void 0, void 0, function* () {
             // Generate a unique name for the workflow
             let uid = new short_unique_id_1.default({ length: 5 });
@@ -136,7 +136,7 @@ class DNSController extends controllerBase_1.ControllerBase {
             // Compute the arguments for the Axion installation
             ctx.logger.info(' => Preparing for DNS Zone setup...');
             // Update the workflow with the computed arguments
-            const args = this.computeArgumentsFile(providerSecretNamespace, providerSecretName, JSON.parse(ctx.input.gcp_credentials).project_id, domainOwnerSecretName, domainOwnerSecretNamespace, ctx);
+            const args = this.computeArgumentsFile(providerSecretNamespace, providerSecretName, JSON.parse(ctx.input.gcp_credentials).project_id, domainOwnerSecretName, domainOwnerSecretNamespace, domainOwnerProviderConfigName, ctx);
             const updatedWorkflow = this.updateWorkflowSpecArguments(workflow, args);
             let workflowName = `${uidGen}-route53-hosted-zone`;
             updatedWorkflow.metadata.name = workflowName;
