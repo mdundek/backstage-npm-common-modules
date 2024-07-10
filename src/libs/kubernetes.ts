@@ -150,7 +150,7 @@ class KubernetesClient {
 
         // Check if the response is ok (status code 200-299)
         if (!response.ok) {
-            throw new Error(`Failed to fetch secret, status: ${response.status}`);
+            throw new Error(`Failed to fetch secret, status: ${response.statusText}`);
         }
 
         // Parse the response as JSON
@@ -181,7 +181,7 @@ class KubernetesClient {
         });
         // Check if the response is ok (status code 200-299)
         if (!response.ok) {
-            throw new Error(`Failed to fetch resource, status: ${response.status}`);
+            throw new Error(`Failed to fetch resource, status: ${response.statusText}`);
         }
 
         // Parse the response as JSON
@@ -206,7 +206,7 @@ class KubernetesClient {
         } else if (response.status === 404) {
             return false;
         } else {
-            throw new Error(`Failed to lookup namespace, status: ${response.status}`);
+            throw new Error(`Failed to lookup namespace, status: ${response.statusText}`);
         }
     }
 
@@ -222,9 +222,10 @@ class KubernetesClient {
               name: namespace,
             },
         })
+        console.log(response)
         // Check if the response is ok (status code 200-299)
         if (!response.ok) {
-            throw new Error(`Failed to create namespace, status: ${response.status}`);
+            throw new Error(`Failed to create namespace, status: ${response.statusText}`);
         }
     }
 
@@ -247,7 +248,7 @@ class KubernetesClient {
         } else if (response.status === 404) {
             return false;
         } else {
-            throw new Error(`Failed to lookup deployment, status: ${response.status}`);
+            throw new Error(`Failed to lookup deployment, status: ${response.statusText}`);
         }
     }
 
