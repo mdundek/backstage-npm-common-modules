@@ -1,6 +1,9 @@
-declare class AmpController {
-    private k8sClient;
-    private argoClient;
+import { ControllerBase } from './controllerBase';
+import { KubernetesClient } from './kubernetes';
+import { ArgoClient } from './argo';
+declare class AmpController extends ControllerBase {
+    k8sClient: KubernetesClient;
+    argoClient: ArgoClient;
     /**
      *
      * @param k8sHost
@@ -28,13 +31,6 @@ declare class AmpController {
     computeArgumentsFile(ampGitlabGroupId: string, projectTitleName: string, projectDnsName: string, teamMailingListEmail: string, devDnsRootDomain: string, intDnsRootDomain: string, ampDataGitRepoUrl: string, ampCodeGitRepoUrl: string, targetDevCertManagerIssuerName: string, targetDevCertManagerRootCertName: string, targetIntCertManagerIssuerName: string, targetIntCertManagerRootCertName: string, oauthClientId: string, terraformCleanupBeforeCreate: boolean, tempSecretName: string): any;
     /**
      *
-     * @param workflow
-     * @param replacements
-     * @returns
-     */
-    updateWorkflowSpecArguments(workflow: any, replacements: any): any;
-    /**
-     *
      * @param ctx
      * @param workflowFilePath
      * @param workflowName
@@ -43,24 +39,7 @@ declare class AmpController {
     /**
      *
      */
-    createArgoWorkflowAdminSa(): Promise<void>;
-    /**
-     *
-     */
     createAmpSystemNamespace(): Promise<void>;
-    /**
-     *
-     * @param token
-     * @param kubeApi
-     * @returns
-     */
-    testKubeToken(token: string, kubeApi: string): Promise<boolean>;
-    /**
-     *
-     * @param command
-     * @param args
-     * @returns
-     */
     /**
      * prepareWorkflow
      * @param ctx
@@ -88,22 +67,6 @@ declare class AmpController {
     prepareArgoWorkflowDependencies(ctx: any, cloudProvider: string, gcpRegion: string, uidGen: string): Promise<{
         tmpCredsSecretName: string;
     }>;
-    /**
-     *
-     * @param ctx
-     * @param k8sBackstageClient
-     */
-    private createWorkflowScriptsConfigMap;
-    /**
-     *
-     * @param ctx
-     */
-    ensureArgoIsInstalled(ctx: any): Promise<void>;
-    /**
-     *
-     * @param ctx
-     */
-    deployBackstageCommonWorkflowTemplate(ctx: any): Promise<void>;
 }
 export { AmpController };
 //# sourceMappingURL=ampController.d.ts.map

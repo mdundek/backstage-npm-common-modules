@@ -80,7 +80,7 @@ class ControllerBase {
             const base64KeyData = Buffer.from(`[default]
 aws_access_key_id = ${aws_access_key_id}
 aws_secret_access_key = ${aws_secret_access_key}`).toString('base64');
-            // Create the temporary-axion-credentials secret
+            // Create the temporary secret
             yield k8sClient.applyResource(`/api/v1/namespaces/${namespace}/secrets`, {
                 apiVersion: "v1",
                 data: {
@@ -110,7 +110,7 @@ aws_secret_access_key = ${aws_secret_access_key}`).toString('base64');
             }
             catch (_) { }
             const base64KeyData = Buffer.from(jsonKey).toString('base64');
-            // Create the temporary-axion-credentials secret
+            // Create temporary secret
             yield k8sClient.applyResource(`/api/v1/namespaces/${namespace}/secrets`, {
                 apiVersion: "v1",
                 data: {
@@ -440,6 +440,69 @@ fi`);
                 ctx.logger.info(` => Applying template ${templatePath}...`);
                 // Apply to remote cluster
                 yield k8sClient.applyYaml(b64Buffer.toString('utf-8'));
+            }
+        });
+    }
+    /**
+     *
+     * @param ctx
+     */
+    deployBackstageCommonWorkflowTemplate(ctx, k8sClient) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let secretValues = yield k8sClient.getSecretValues('backstage-system', 'backstage-secrets');
+            const workflowsRepoProjectId = secretValues.GITLAB_BACKSTAGE_WORKFLOWS_REPO_ID;
+            const branchOrTag = 'main';
+            const personalAccessToken = secretValues.GITLAB_GROUP_BACKSTAGE_RW_TOKEN;
+            const templateYaml = yield gitlab_1.gitlab.fetchFile(workflowsRepoProjectId, "templates/backstage-common.yaml", branchOrTag, personalAccessToken);
+            const b64Buffer = Buffer.from(templateYaml.content, 'base64');
+            // Parse the YAML content
+            ctx.logger.info(` => Applying template backstage-common.yaml...`);
+            // Apply to remote cluster
+            yield k8sClient.applyYaml(b64Buffer.toString('utf-8'));
+        });
+    }
+    /**
+     * createWorkflowScriptsConfigMap
+     * @param ctx
+     * @param k8sClient
+     */
+    createWorkflowScriptsConfigMap(ctx, k8sClient) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const tmpFolder = yield fs.mkdtemp(path.join(os.tmpdir(), 'backstage-'));
+            try {
+                ctx.logger.info(' => Fetching scripts from the workflows repository...');
+                let secretValues = yield k8sClient.getSecretValues('backstage-system', 'backstage-secrets');
+                const workflowsRepoProjectId = secretValues["GITLAB_BACKSTAGE_WORKFLOWS_REPO_ID"];
+                const branchOrTag = 'main';
+                const personalAccessToken = secretValues.GITLAB_GROUP_BACKSTAGE_RW_TOKEN;
+                let scriptsFiles = yield gitlab_1.gitlab.getFilesFromFolder(workflowsRepoProjectId, "amp/scripts", branchOrTag, personalAccessToken);
+                for (let scriptPath of scriptsFiles) {
+                    const scriptCode = yield gitlab_1.gitlab.fetchFile(workflowsRepoProjectId, scriptPath, branchOrTag, personalAccessToken);
+                    const b64Buffer = Buffer.from(scriptCode.content, 'base64');
+                    fs.writeFile(path.join(tmpFolder, path.basename(scriptPath)), b64Buffer, 'utf-8');
+                }
+                // Create ConfigMap from files
+                ctx.logger.info(' => Creating ConfigMap from scripts for workflow...');
+                const files = yield fs.readdir(tmpFolder);
+                const scripts = {};
+                for (let file of files) {
+                    scripts[file] = yield fs.readFile(path.join(tmpFolder, file), 'utf8');
+                }
+                // Construct the ConfigMap object
+                const configMap = {
+                    apiVersion: 'v1',
+                    kind: 'ConfigMap',
+                    metadata: {
+                        name: 'script-config-map',
+                        namespace: 'argo',
+                    },
+                    data: scripts,
+                };
+                yield k8sClient.deleteResourceIfExists(`/api/v1/namespaces/argo/configmaps/script-config-map`);
+                yield k8sClient.applyResource(`/api/v1/namespaces/argo/configmaps`, configMap);
+            }
+            finally {
+                yield fs.rm(tmpFolder, { recursive: true });
             }
         });
     }

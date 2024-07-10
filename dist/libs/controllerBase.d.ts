@@ -84,6 +84,17 @@ declare class ControllerBase {
      * @param ctx
      */
     deployBackstageWorkflowTemplates(ctx: any, k8sClient: any): Promise<void>;
+    /**
+     *
+     * @param ctx
+     */
+    deployBackstageCommonWorkflowTemplate(ctx: any, k8sClient: any): Promise<void>;
+    /**
+     * createWorkflowScriptsConfigMap
+     * @param ctx
+     * @param k8sClient
+     */
+    createWorkflowScriptsConfigMap(ctx: any, k8sClient: any): Promise<void>;
 }
 export { ControllerBase };
 //# sourceMappingURL=controllerBase.d.ts.map

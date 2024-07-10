@@ -1,10 +1,8 @@
+import { ControllerBase } from './controllerBase';
 import { KubernetesClient } from './kubernetes';
 import { BackstageComponentRegistrar } from './backstageRegistrar';
 import { ArgoClient } from './argo';
-import { gitlab } from './gitlab';
-import * as os from 'os';
 import * as path from 'path';
-import { spawn } from 'child_process';
 import ShortUniqueId from 'short-unique-id';
 import * as fs from 'fs/promises';
 import * as yaml from 'js-yaml';
@@ -12,26 +10,10 @@ import * as yaml from 'js-yaml';
 const KUBE_API_SERVER = process.env.KUBE_API_SERVER || 'https://kubernetes.default.svc';
 const SA_TOKEN = process.env.KUBE_API_SA_TOKEN || '';
 
-/**
- * fetchProxy
- * @param url 
- * @param options 
- * @returns 
- */
-const fetchProxy = async (url: string, options: any) => {
-    // Depending on the KubeAPI host used, the certificate might not be valid.
-    process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-    try {
-        return await fetch(url, options);
-    } finally {
-        // Reenable right after the call
-        process.env.NODE_TLS_REJECT_UNAUTHORIZED = '1';
-    }
-}  
 
-class AmpController {
-    private k8sClient: KubernetesClient;
-    private argoClient: ArgoClient;
+class AmpController extends ControllerBase {
+    public k8sClient: KubernetesClient;
+    public argoClient: ArgoClient;
 
     /**
      * 
@@ -39,6 +21,7 @@ class AmpController {
      * @param k8sSaToken 
      */
     constructor(k8sHost?: string, k8sSaToken?: string) {
+        super();
         this.k8sClient = new KubernetesClient(k8sHost || KUBE_API_SERVER, k8sSaToken || SA_TOKEN)
         this.argoClient = new ArgoClient(k8sHost || KUBE_API_SERVER, k8sSaToken || SA_TOKEN)
     }
@@ -107,34 +90,6 @@ class AmpController {
 
     /**
      * 
-     * @param workflow 
-     * @param replacements 
-     * @returns 
-     */
-    public updateWorkflowSpecArguments(workflow: any, replacements: any): any {
-        // Clone the workflow to avoid mutating the original object
-        let updatedWorkflow = JSON.parse(JSON.stringify(workflow));
-
-        // Iterate over the parameters in the workflow spec arguments
-        if (updatedWorkflow.spec && updatedWorkflow.spec.arguments && updatedWorkflow.spec.arguments.parameters) {
-            updatedWorkflow.spec.arguments.parameters = updatedWorkflow.spec.arguments.parameters.map((param: any) => {
-                // Check if the param name exists in the replacements object
-                if (replacements.hasOwnProperty(param.name)) {
-                    // Update the value if there is a matching key in replacements
-                    return {
-                        ...param,
-                        value: replacements[param.name]
-                    };
-                }
-                return param;
-            });
-        }
-
-        return updatedWorkflow;
-    }
-
-    /**
-     * 
      * @param ctx 
      * @param workflowFilePath 
      * @param workflowName 
@@ -148,75 +103,6 @@ class AmpController {
             false,
             debug
         );
-    }
-
-    /**
-     * 
-     */
-    public async createArgoWorkflowAdminSa() {
-        try {
-            await this.k8sClient.fetchRaw(`/api/v1/namespaces/argo/serviceaccounts/argo-admin`);
-        } catch (error) {
-            // Does not exist, create SA
-            await this.k8sClient.applyResource(`/api/v1/namespaces/argo/serviceaccounts`, {
-                "apiVersion": "v1",
-                "imagePullSecrets": [
-                    {
-                      "name": "argo-sa-regcreds"
-                    }
-                ],
-                "kind": "ServiceAccount",
-                "metadata": {
-                    "name": "argo-admin",
-                    "namespace": "argo"
-                
-                }
-            })
-        }
-
-        try {
-            await this.k8sClient.fetchRaw(`/apis/rbac.authorization.k8s.io/v1/clusterrolebindings/argo-admin-binding`);
-        } catch (error) {
-
-            await this.k8sClient.applyResource(`/apis/rbac.authorization.k8s.io/v1/clusterrolebindings`, {
-                "apiVersion": "rbac.authorization.k8s.io/v1",
-                "kind": "ClusterRoleBinding",
-                "metadata": {
-                    "name": "argo-admin-binding"
-                },
-                "roleRef": {
-                    "apiGroup": "rbac.authorization.k8s.io",
-                    "kind": "ClusterRole",
-                    "name": "cluster-admin"
-                },
-                "subjects": [
-                    {
-                        "kind": "ServiceAccount",
-                        "name": "argo-admin",
-                        "namespace": "argo"
-                    }
-                ]
-            })
-            
-        }
-
-        try {
-            await this.k8sClient.fetchRaw(`/api/v1/namespaces/argo/secrets/argo-admin`);
-        } catch (error) {
-            // Does not exist, create SA
-            await this.k8sClient.applyResource(`/api/v1/namespaces/argo/secrets`, {
-                "apiVersion": "v1",
-                "kind": "Secret",
-                "metadata": {
-                    "name": "argo-admin",
-                    "namespace": "argo",
-                    "annotations": {
-                        "kubernetes.io/service-account.name": "argo-admin"
-                    }
-                },
-                "type": "kubernetes.io/service-account-token"
-            })
-        }
     }
 
     /**
@@ -236,48 +122,6 @@ class AmpController {
             })
         }
     }
-
-    /**
-     * 
-     * @param token 
-     * @param kubeApi 
-     * @returns 
-     */
-    public async testKubeToken(token: string, kubeApi: string) {
-        const response = await fetchProxy(`${kubeApi}/apis/authentication.k8s.io/v1/tokenreviews`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({
-                "apiVersion": "authentication.k8s.io/v1",
-                "kind": "TokenReview",
-                "spec": {
-                "token": token
-                }
-            })
-        });
-        if (!response.ok) {
-            return false
-        }
-        return true;
-    }
-
-    /**
-     * 
-     * @param command 
-     * @param args 
-     * @returns 
-     */
-    // private async runCommand(command: string, args: string[] = []) {
-    //     return new Promise((resolve) => {
-    //         const process = spawn(command, args);
-    //         process.on('close', (exitCode: number) => {
-    //             resolve(exitCode);
-    //         });
-    //     });
-    // }
 
     /**
      * prepareWorkflow
@@ -392,7 +236,7 @@ class AmpController {
         gcpRegion: string,
         uidGen: string
     ) {
-        await this.createWorkflowScriptsConfigMap(ctx)
+        await this.createWorkflowScriptsConfigMap(ctx, this.k8sClient)
 
         // Create the Amp System namespace if it does not exist
         await this.createAmpSystemNamespace();
@@ -422,101 +266,6 @@ class AmpController {
         return {
             tmpCredsSecretName: `tmp-${uidGen}`
         };
-    }
-
-    /**
-     * 
-     * @param ctx 
-     * @param k8sBackstageClient 
-     */
-    private async createWorkflowScriptsConfigMap(ctx: any) {
-        const tmpFolder = await fs.mkdtemp(path.join(os.tmpdir(), 'backstage-'));
-        try {
-            ctx.logger.info(' => Fetching scripts from the workflows repository...');
-            let secretValues = await this.k8sClient.getSecretValues('backstage-system', 'backstage-secrets');
-                
-            const workflowsRepoProjectId = secretValues["GITLAB_BACKSTAGE_WORKFLOWS_REPO_ID"];
-            const branchOrTag = 'main';
-            const personalAccessToken = secretValues.GITLAB_GROUP_BACKSTAGE_RW_TOKEN;
-
-            let scriptsFiles = await gitlab.getFilesFromFolder(
-                workflowsRepoProjectId, 
-                "amp/scripts", 
-                branchOrTag, 
-                personalAccessToken
-            );
-            for(let scriptPath of scriptsFiles) {
-                const scriptCode = await gitlab.fetchFile(workflowsRepoProjectId, scriptPath, branchOrTag, personalAccessToken);
-                const b64Buffer = Buffer.from(scriptCode.content, 'base64');
-
-                fs.writeFile(path.join(tmpFolder, path.basename(scriptPath)), b64Buffer, 'utf-8');            
-            }
-
-            // Create ConfigMap from files
-            ctx.logger.info(' => Creating ConfigMap from scripts for workflow...');
-            const files = await fs.readdir(tmpFolder);
-            const scripts:any = {};
-            for(let file of files) {
-                scripts[file] = await fs.readFile(path.join(tmpFolder, file), 'utf8');
-            }
-
-            // Construct the ConfigMap object
-            const configMap = {
-                apiVersion: 'v1',
-                kind: 'ConfigMap',
-                metadata: {
-                    name: 'script-config-map',
-                    namespace: 'argo',
-                },
-                data: scripts,
-            };
-            await this.k8sClient.deleteResourceIfExists(`/api/v1/namespaces/argo/configmaps/script-config-map`);
-            await this.k8sClient.applyResource(`/api/v1/namespaces/argo/configmaps`, configMap);
-        } finally {
-            await fs.rm(tmpFolder, { recursive: true });
-        }
-    }
-
-    /**
-     * 
-     * @param ctx 
-     */
-    public async ensureArgoIsInstalled(ctx: any) {
-        const argoNsExists = await this.k8sClient.namespaceExists("argo");
-        if (!argoNsExists) {
-            await this.k8sClient.createNamespace("argo");
-        }
-        const argoDeploymentExists = await this.k8sClient.hasDeployment("argo-server", "argo");
-        if(!argoDeploymentExists) {
-            ctx.logger.info(' => Installing Argo Workflow on target cluster...');
-            
-            await this.k8sClient.deployRemoteYaml(
-                "https://github.com/argoproj/argo-workflows/releases/download/v3.5.7/quick-start-minimal.yaml",
-                "argo"
-            )
-            ctx.logger.info(' => Successfully deployed Argo to the cluster.');
-        } else {
-            ctx.logger.info(' => Argo Workflow already installed.');
-        }
-    }
-
-    /**
-     * 
-     * @param ctx 
-     */
-    public async deployBackstageCommonWorkflowTemplate(ctx: any) {
-        let secretValues = await this.k8sClient.getSecretValues('backstage-system', 'backstage-secrets');
-
-        const workflowsRepoProjectId = secretValues.GITLAB_BACKSTAGE_WORKFLOWS_REPO_ID;
-        const branchOrTag = 'main';
-        const personalAccessToken = secretValues.GITLAB_GROUP_BACKSTAGE_RW_TOKEN;
-
-        const templateYaml = await gitlab.fetchFile(workflowsRepoProjectId, "templates/backstage-common.yaml", branchOrTag, personalAccessToken);
-        const b64Buffer = Buffer.from(templateYaml.content, 'base64');
-        // Parse the YAML content
-        ctx.logger.info(` => Applying template backstage-common.yaml...`);
-        // Apply to remote cluster
-        await this.k8sClient.applyYaml(b64Buffer.toString('utf-8'))
     }
 }
 

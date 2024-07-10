@@ -1,7 +1,9 @@
+import { ControllerBase } from './controllerBase';
 import { KubernetesClient } from './kubernetes';
-declare class AxionController {
-    private k8sClient;
-    private argoClient;
+import { ArgoClient } from './argo';
+declare class AxionController extends ControllerBase {
+    k8sClient: KubernetesClient;
+    argoClient: ArgoClient;
     /**
      *
      * @param k8sHost
@@ -27,13 +29,6 @@ declare class AxionController {
     computeArgumentsFile(clusterEntity: any, dnsEntity: any, gcpProjectId: string, ctx: any): any;
     /**
      *
-     * @param workflow
-     * @param replacements
-     * @returns
-     */
-    updateWorkflowSpecArguments(workflow: any, replacements: any): any;
-    /**
-     *
      * @param ctx
      * @param workflowFilePath
      * @param workflowName
@@ -42,63 +37,15 @@ declare class AxionController {
     /**
      *
      */
-    createArgoWorkflowAdminSa(): Promise<void>;
-    /**
-     *
-     * @param repo
-     * @param username
-     * @param password
-     */
-    createArgoPullSecret(repo: string, username: string, password: string): Promise<void>;
-    /**
-     *
-     */
     createAxionSystemNamespace(): Promise<void>;
-    /**
-     *
-     * @param vaultToken
-     * @param vaultEnvironment
-     * @param vaultNamespace
-     * @returns
-     */
-    testVaultCreds(vaultToken: string, vaultEnvironment: string, vaultNamespace: string): Promise<boolean>;
-    /**
-     *
-     * @param repo
-     * @param username
-     * @param password
-     * @returns
-     */
-    testOciCreds(repo: string, username: string, password: string): Promise<boolean>;
-    /**
-     *
-     * @param jsonKey
-     * @returns
-     */
-    testCloudCreds(jsonKey: string, projectId: string): Promise<boolean>;
-    /**
-     *
-     * @param token
-     * @param kubeApi
-     * @returns
-     */
-    testKubeToken(token: string, kubeApi: string): Promise<boolean>;
-    /**
-     *
-     * @param command
-     * @param args
-     * @returns
-     */
-    private runCommand;
     /**
      * validateCredentials
      * @param ctx
-     * @param clusterEntity
      * @param nakedRepo
      * @param k8sSaToken
      * @param k8sHost
      */
-    validateCredentials(ctx: any, clusterEntity: any, nakedRepo: string, k8sSaToken: string, k8sHost: string): Promise<void>;
+    validateCredentials(ctx: any, nakedRepo: string, k8sSaToken: string, k8sHost: string): Promise<void>;
     /**
      *
      * @param ctx
@@ -125,11 +72,6 @@ declare class AxionController {
     prepareArgoWorkflowDependencies(ctx: any, dnsEntity: any, nakedRepo: string, k8sSaToken: string, k8sHost: string, uidGen: string): Promise<{
         tmpCredsSecretName: string;
     }>;
-    /**
-     *
-     * @param ctx
-     */
-    ensureArgoIsInstalled(ctx: any): Promise<void>;
     /**
      *
      * @param ctx

@@ -36,40 +36,22 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AxionController = void 0;
+const controllerBase_1 = require("./controllerBase");
 const kubernetes_1 = require("./kubernetes");
 const backstageRegistrar_1 = require("./backstageRegistrar");
 const argo_1 = require("./argo");
 const gitlab_1 = require("./gitlab");
-const os = __importStar(require("os"));
-const path = __importStar(require("path"));
-const child_process_1 = require("child_process");
 const short_unique_id_1 = __importDefault(require("short-unique-id"));
 const fs = __importStar(require("fs/promises"));
 const yaml = __importStar(require("js-yaml"));
-/**
- * fetchProxy
- * @param url
- * @param options
- * @returns
- */
-const fetchProxy = (url, options) => __awaiter(void 0, void 0, void 0, function* () {
-    // Depending on the KubeAPI host used, the certificate might not be valid.
-    process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-    try {
-        return yield fetch(url, options);
-    }
-    finally {
-        // Reenable right after the call
-        process.env.NODE_TLS_REJECT_UNAUTHORIZED = '1';
-    }
-});
-class AxionController {
+class AxionController extends controllerBase_1.ControllerBase {
     /**
      *
      * @param k8sHost
      * @param k8sSaToken
      */
     constructor(k8sHost, k8sSaToken) {
+        super();
         this.k8sClient = new kubernetes_1.KubernetesClient(k8sHost, k8sSaToken);
         this.argoClient = new argo_1.ArgoClient(k8sHost, k8sSaToken);
     }
@@ -88,7 +70,7 @@ class AxionController {
                 yield this.k8sClient.deleteSecret("temporary-axion-credentials", "axion-system");
             }
             catch (_) { }
-            // Create the temporary-axion-credentials secret
+            // Create temporary secret
             yield this.k8sClient.applyResource(`/api/v1/namespaces/axion-system/secrets`, {
                 apiVersion: "v1",
                 data: {
@@ -167,28 +149,6 @@ class AxionController {
     }
     /**
      *
-     * @param workflow
-     * @param replacements
-     * @returns
-     */
-    updateWorkflowSpecArguments(workflow, replacements) {
-        // Clone the workflow to avoid mutating the original object
-        let updatedWorkflow = JSON.parse(JSON.stringify(workflow));
-        // Iterate over the parameters in the workflow spec arguments
-        if (updatedWorkflow.spec && updatedWorkflow.spec.arguments && updatedWorkflow.spec.arguments.parameters) {
-            updatedWorkflow.spec.arguments.parameters = updatedWorkflow.spec.arguments.parameters.map((param) => {
-                // Check if the param name exists in the replacements object
-                if (replacements.hasOwnProperty(param.name)) {
-                    // Update the value if there is a matching key in replacements
-                    return Object.assign(Object.assign({}, param), { value: replacements[param.name] });
-                }
-                return param;
-            });
-        }
-        return updatedWorkflow;
-    }
-    /**
-     *
      * @param ctx
      * @param workflowFilePath
      * @param workflowName
@@ -197,108 +157,6 @@ class AxionController {
         return __awaiter(this, void 0, void 0, function* () {
             // Run the workflow
             yield this.argoClient.runWorkflow(ctx.logger, workflowFilePath, workflowName, false, debug);
-        });
-    }
-    /**
-     *
-     */
-    createArgoWorkflowAdminSa() {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                yield this.k8sClient.fetchRaw(`/api/v1/namespaces/argo/serviceaccounts/argo-admin`);
-            }
-            catch (error) {
-                // Does not exist, create SA
-                yield this.k8sClient.applyResource(`/api/v1/namespaces/argo/serviceaccounts`, {
-                    "apiVersion": "v1",
-                    "imagePullSecrets": [
-                        {
-                            "name": "argo-sa-regcreds"
-                        }
-                    ],
-                    "kind": "ServiceAccount",
-                    "metadata": {
-                        "name": "argo-admin",
-                        "namespace": "argo"
-                    }
-                });
-            }
-            try {
-                yield this.k8sClient.fetchRaw(`/apis/rbac.authorization.k8s.io/v1/clusterrolebindings/argo-admin-binding`);
-            }
-            catch (error) {
-                yield this.k8sClient.applyResource(`/apis/rbac.authorization.k8s.io/v1/clusterrolebindings`, {
-                    "apiVersion": "rbac.authorization.k8s.io/v1",
-                    "kind": "ClusterRoleBinding",
-                    "metadata": {
-                        "name": "argo-admin-binding"
-                    },
-                    "roleRef": {
-                        "apiGroup": "rbac.authorization.k8s.io",
-                        "kind": "ClusterRole",
-                        "name": "cluster-admin"
-                    },
-                    "subjects": [
-                        {
-                            "kind": "ServiceAccount",
-                            "name": "argo-admin",
-                            "namespace": "argo"
-                        }
-                    ]
-                });
-            }
-            try {
-                yield this.k8sClient.fetchRaw(`/api/v1/namespaces/argo/secrets/argo-admin`);
-            }
-            catch (error) {
-                // Does not exist, create SA
-                yield this.k8sClient.applyResource(`/api/v1/namespaces/argo/secrets`, {
-                    "apiVersion": "v1",
-                    "kind": "Secret",
-                    "metadata": {
-                        "name": "argo-admin",
-                        "namespace": "argo",
-                        "annotations": {
-                            "kubernetes.io/service-account.name": "argo-admin"
-                        }
-                    },
-                    "type": "kubernetes.io/service-account-token"
-                });
-            }
-        });
-    }
-    /**
-     *
-     * @param repo
-     * @param username
-     * @param password
-     */
-    createArgoPullSecret(repo, username, password) {
-        return __awaiter(this, void 0, void 0, function* () {
-            let secretExists = false;
-            try {
-                yield this.k8sClient.fetchRaw(`/api/v1/namespaces/argo/secrets/argo-sa-regcreds`);
-                secretExists = true;
-                // If still standing, we have a secret. Let's delete it first
-                yield this.k8sClient.deleteSecret("argo-sa-regcreds", "argo");
-            }
-            catch (error) {
-                if (secretExists) {
-                    throw new Error(`Could not delete secret: ${error.message}`);
-                }
-            }
-            yield this.k8sClient.applyResource(`/api/v1/namespaces/argo/secrets`, {
-                "apiVersion": "v1",
-                "data": {
-                    ".dockerconfigjson": btoa(`{"auths":{"${repo}":{"username":"${username}","password":"${password}","email":"DUMMY_DOCKER_EMAIL","auth":"${btoa(`${username}:${password}`)}"}}}`)
-                },
-                "kind": "Secret",
-                "metadata": {
-                    "name": "argo-sa-regcreds",
-                    "namespace": "argo",
-                },
-                "type": "kubernetes.io/dockerconfigjson"
-            });
         });
     }
     /**
@@ -322,168 +180,17 @@ class AxionController {
         });
     }
     /**
-     *
-     * @param vaultToken
-     * @param vaultEnvironment
-     * @param vaultNamespace
-     * @returns
-     */
-    testVaultCreds(vaultToken, vaultEnvironment, vaultNamespace) {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (process.env.NODE_ENV == "development") {
-                return true;
-            }
-            let uid = new short_unique_id_1.default({ length: 5 });
-            let secretName = `SECRET_SAMPLE_${uid.rnd().toUpperCase()}`;
-            try {
-                let response = yield fetchProxy(`${vaultEnvironment}/v1/secrets/kv/data/${vaultNamespace}`, {
-                    method: 'POST',
-                    headers: {
-                        'accept': 'application/json',
-                        'Content-Type': 'application/json',
-                        'X-Vault-Token': vaultToken,
-                    },
-                    body: `{ "data": { "${secretName}": "sample" } }`
-                });
-                if (!response.ok) {
-                    throw new Error(`Could not access Vault, make sure your token is valid.`);
-                }
-                response = yield fetchProxy(`https://${vaultEnvironment}.ess.ea.com/v1/secrets/kv/data/${vaultNamespace}/${secretName}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'accept': 'application/json',
-                        'Content-Type': 'application/json',
-                        'X-Vault-Token': vaultToken,
-                    }
-                });
-                return true;
-            }
-            catch (error) {
-                return false;
-            }
-        });
-    }
-    /**
-     *
-     * @param repo
-     * @param username
-     * @param password
-     * @returns
-     */
-    testOciCreds(repo, username, password) {
-        return __awaiter(this, void 0, void 0, function* () {
-            let code = yield this.runCommand("docker", ["--version"]);
-            if (code != 0) {
-                return true;
-            }
-            return ((yield this.runCommand("echo", [password, "|", "docker", "login", repo, "-u", username, "--password-stdin"])) == 0);
-        });
-    }
-    /**
-     *
-     * @param jsonKey
-     * @returns
-     */
-    testCloudCreds(jsonKey, projectId) {
-        return __awaiter(this, void 0, void 0, function* () {
-            let code = yield this.runCommand("gcloud", ["--version"]);
-            if (code != 0) {
-                return true;
-            }
-            // Create a temporary file
-            const tempDir = os.tmpdir();
-            const tempKeyFile = path.join(tempDir, `gcp-key-${Date.now()}.json`);
-            const tempExecFile = path.join(tempDir, `gcp-key-${Date.now()}.sh`);
-            try {
-                // Write JSON key content to the temporary file
-                yield fs.writeFile(tempKeyFile, jsonKey);
-                yield fs.writeFile(tempExecFile, `#!/bin/bash
-gcloud auth revoke | true
-gcloud auth activate-service-account --key-file ${tempKeyFile}
-ACCESS_TOKEN=$(gcloud auth print-access-token)
-UNAUTHENTICATED=$(curl -H "Authorization: Bearer $ACCESS_TOKEN" https://cloudresourcemanager.googleapis.com/v1/projects/${projectId} | grep "UNAUTHENTICATED")
-if [ ! -z "$UNAUTHENTICATED" ]; then
-    exit 1
-fi`);
-                yield this.runCommand("chmod", ["a+x", tempExecFile]);
-                if ((yield this.runCommand(tempExecFile)) != 0) {
-                    return false;
-                }
-                return true;
-            }
-            catch (error) {
-                return false;
-            }
-            finally {
-                // Delete the temporary file
-                try {
-                    yield fs.unlink(tempKeyFile);
-                }
-                catch (_) { }
-                try {
-                    yield fs.unlink(tempExecFile);
-                }
-                catch (_) { }
-            }
-        });
-    }
-    /**
-     *
-     * @param token
-     * @param kubeApi
-     * @returns
-     */
-    testKubeToken(token, kubeApi) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const response = yield fetchProxy(`${kubeApi}/apis/authentication.k8s.io/v1/tokenreviews`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    "apiVersion": "authentication.k8s.io/v1",
-                    "kind": "TokenReview",
-                    "spec": {
-                        "token": token
-                    }
-                })
-            });
-            if (!response.ok) {
-                return false;
-            }
-            return true;
-        });
-    }
-    /**
-     *
-     * @param command
-     * @param args
-     * @returns
-     */
-    runCommand(command_1) {
-        return __awaiter(this, arguments, void 0, function* (command, args = []) {
-            return new Promise((resolve) => {
-                const process = (0, child_process_1.spawn)(command, args);
-                process.on('close', (exitCode) => {
-                    resolve(exitCode);
-                });
-            });
-        });
-    }
-    /**
      * validateCredentials
      * @param ctx
-     * @param clusterEntity
      * @param nakedRepo
      * @param k8sSaToken
      * @param k8sHost
      */
-    validateCredentials(ctx, clusterEntity, nakedRepo, k8sSaToken, k8sHost) {
+    validateCredentials(ctx, nakedRepo, k8sSaToken, k8sHost) {
         return __awaiter(this, void 0, void 0, function* () {
             ctx.logger.info(' => Validating credentials and basic access...');
             const authErrors = [];
-            const cloudCredsValid = yield this.testCloudCreds(ctx.input.cloudCredentials, clusterEntity.spec.data.projectId);
+            const cloudCredsValid = yield this.testGcpCloudCreds(ctx.input.cloudCredentials);
             const ociCredsValid = yield this.testOciCreds(nakedRepo, ctx.input.ociAuthUsername, ctx.input.ociAuthToken);
             if (ctx.input.manageAxionSecretsWithVault) {
                 const vaultCredsValid = yield this.testVaultCreds(ctx.input.vaultTemporaryToken, ctx.input.vaultEnvironment, ctx.input.vaultNamespace);
@@ -665,9 +372,9 @@ fi`);
             // Prepare the temporary secret for the Axion installation
             yield this.prepareTemporarySecret(ctx.input.cloudCredentials, dnsEntity.spec.cloudProvider, ctx.input.ociAuthUsername, ctx.input.ociAuthToken, ctx.input.vaultTemporaryToken);
             // Create the Argo Pull Secret if it does not exist
-            yield this.createArgoPullSecret(nakedRepo, ctx.input.ociAuthUsername, ctx.input.ociAuthToken);
+            yield this.createArgoPullSecret(this.k8sClient, nakedRepo, ctx.input.ociAuthUsername, ctx.input.ociAuthToken);
             // Create the Workflow Service Account if it does not exist
-            yield this.createArgoWorkflowAdminSa();
+            yield this.createArgoWorkflowAdminSa(this.k8sClient);
             // Create temporary secret with target cluster creds that the proxy workflow can use to deploy the workflow to
             const k8sClient = new kubernetes_1.KubernetesClient();
             yield k8sClient.applyResource(`/api/v1/namespaces/backstage-system/secrets`, {
@@ -685,27 +392,6 @@ fi`);
             return {
                 tmpCredsSecretName: `tmp-${uidGen}`
             };
-        });
-    }
-    /**
-     *
-     * @param ctx
-     */
-    ensureArgoIsInstalled(ctx) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const argoNsExists = yield this.k8sClient.namespaceExists("argo");
-            if (!argoNsExists) {
-                yield this.k8sClient.createNamespace("argo");
-            }
-            const argoDeploymentExists = yield this.k8sClient.hasDeployment("argo-server", "argo");
-            if (!argoDeploymentExists) {
-                ctx.logger.info(' => Installing Argo Workflow on target cluster...');
-                yield this.k8sClient.deployRemoteYaml("https://github.com/argoproj/argo-workflows/releases/download/v3.5.7/quick-start-minimal.yaml", "argo");
-                ctx.logger.info(' => Successfully deployed Argo to the cluster.');
-            }
-            else {
-                ctx.logger.info(' => Argo Workflow already installed.');
-            }
         });
     }
     /**
