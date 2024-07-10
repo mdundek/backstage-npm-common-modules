@@ -69,8 +69,6 @@ class DNSController extends controllerBase_1.ControllerBase {
         const systemNormalizedName = backstageRegistrar_1.BackstageComponentRegistrar.normalizeSystemRef(ctx.input.targetSystem);
         // Prepare the Argo Workflow arguments for the Axion installation
         const args = {
-            "axionOciRepo": "captech-docker-fed.artifactory.ea.com/captech-msi/core/axion/mdundek/dev",
-            "workflowUtilsImgVersion": "2.4.36-amd64",
             "resourceOwnerRef": ctx.input.userOwnerRef,
             "targetBackstageSystem": ctx.input.targetSystem,
             "targetBackstageSystemNormalized": systemNormalizedName,
