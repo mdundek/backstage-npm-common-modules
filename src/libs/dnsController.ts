@@ -189,6 +189,9 @@ class DNSController extends ControllerBase {
 
         // Create the Workflow Service Account if it does not exist
         await this.createArgoWorkflowAdminSa(this.k8sClient);
+
+        // Make sure we have latest version of templates deployed
+        await this.deployBackstageWorkflowTemplates(ctx, this.k8sClient);
     }
 
     /**

@@ -174,6 +174,8 @@ class DNSController extends controllerBase_1.ControllerBase {
             yield this.createArgoPullSecret(this.k8sClient, nakedRepo, ctx.input.ociAuthUsername, ctx.input.ociAuthToken);
             // Create the Workflow Service Account if it does not exist
             yield this.createArgoWorkflowAdminSa(this.k8sClient);
+            // Make sure we have latest version of templates deployed
+            yield this.deployBackstageWorkflowTemplates(ctx, this.k8sClient);
         });
     }
     /**
