@@ -154,7 +154,7 @@ class KubernetesClient {
         }
 
         // Parse the response as JSON
-        const data = await response.json();
+        const data:any = await response.json();
 
         const secretData: { [key: string]: string } = {};
         Object.keys(data.data).forEach((key: string) => {
@@ -195,15 +195,14 @@ class KubernetesClient {
      * @returns 
      */
     public async namespaceExists(namespace: string) {
-        console.log("========================> ", `${this.KUBE_API_SERVER}/api/v1/namespaces/${namespace}`)
-        const response = await fetchProxy(`https://10.154.68.9:443/api/v1/namespaces/${namespace}`, {
+        console.log("====> 1")
+        const response = await fetchProxy(`${this.KUBE_API_SERVER}/api/v1/namespaces/${namespace}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${this.SA_TOKEN}`
             },
         });
-        console.log("========================> ", this.SA_TOKEN);
         console.log(response);
         if (response.status === 200) {
             return true;
@@ -219,13 +218,15 @@ class KubernetesClient {
      * @param namespace 
      */
     public async createNamespace(namespace: string) {
-        const response = await this.applyResource(`${this.KUBE_API_SERVER}/api/v1/namespaces`, {
+        console.log("====> 2")
+        const response:any = await this.applyResource(`${this.KUBE_API_SERVER}/api/v1/namespaces`, {
             apiVersion: "v1",
             kind: "Namespace",
             metadata: {
               name: namespace,
             },
         })
+        console.log(response);
         // Check if the response is ok (status code 200-299)
         if (!response.ok) {
             throw new Error(`Failed to create namespace, status: ${response.status}`);
@@ -239,6 +240,7 @@ class KubernetesClient {
      * @returns 
      */
     public async hasDeployment(name: string, namespace: string) {
+        console.log("====> 3")
         const response = await fetchProxy(`${this.KUBE_API_SERVER}/apis/apps/v1/namespaces/${namespace}/deployments/${name}`, {
             method: 'GET',
             headers: {
@@ -246,6 +248,7 @@ class KubernetesClient {
                 'Authorization': `Bearer ${this.SA_TOKEN}`
             },
         });
+        console.log(response);
         if (response.status === 200) {
             return true;
         } else if (response.status === 404) {
@@ -264,11 +267,14 @@ class KubernetesClient {
         yamlLocalionUrl: string, 
         targetNamespace: string
     ) {
+        console.log("====> 4")
         // Fetch the YAML content from the URL
         const response = await fetch(yamlLocalionUrl);
         if (!response.ok) {
             throw new Error(`Failed to fetch YAML: ${response.statusText}`);
         }
+
+        console.log(response);
         const yamlContent = await response.text();
     
         // Parse the YAML content
