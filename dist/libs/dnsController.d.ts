@@ -15,10 +15,12 @@ declare class DNSController extends ControllerBase {
      * @param userAccountProviderSecretNamespace
      * @param userAccountProviderSecretName
      * @param gcpProjectId
+     * @param secretNameDomainOwnerAccount
+     * @param secretNamespaceDomainOwnerAccount
      * @param ctx
      * @returns
      */
-    computeArgumentsFile(userAccountProviderSecretNamespace: string, userAccountProviderSecretName: string, gcpProjectId: string, ctx: any): any;
+    computeArgumentsFile(userAccountProviderSecretNamespace: string, userAccountProviderSecretName: string, gcpProjectId: string, secretNameDomainOwnerAccount: string, secretNamespaceDomainOwnerAccount: string, ctx: any): any;
     /**
      * validateCredentials
      * @param ctx
@@ -29,9 +31,11 @@ declare class DNSController extends ControllerBase {
      * @param ctx
      * @param providerSecretName
      * @param providerSecretNamespace
+     * @param domainOwnerSecretName
+     * @param domainOwnerSecretNamespace
      * @returns
      */
-    prepareWorkflow(ctx: any, providerSecretName: string, providerSecretNamespace: string): Promise<{
+    prepareWorkflow(ctx: any, providerSecretName: string, providerSecretNamespace: string, domainOwnerSecretName: string, domainOwnerSecretNamespace: string): Promise<{
         uidGen: string;
         workflowFilePath: string;
         workflowName: string;

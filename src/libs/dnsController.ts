@@ -30,6 +30,8 @@ class DNSController extends ControllerBase {
      * @param userAccountProviderSecretNamespace 
      * @param userAccountProviderSecretName 
      * @param gcpProjectId 
+     * @param secretNameDomainOwnerAccount 
+     * @param secretNamespaceDomainOwnerAccount 
      * @param ctx 
      * @returns 
      */
@@ -37,6 +39,8 @@ class DNSController extends ControllerBase {
         userAccountProviderSecretNamespace: string,
         userAccountProviderSecretName: string,
         gcpProjectId: string,
+        secretNameDomainOwnerAccount: string,
+        secretNamespaceDomainOwnerAccount: string,
         ctx: any): any {
 
         const systemNormalizedName = BackstageComponentRegistrar.normalizeSystemRef(ctx.input.targetSystem)
@@ -63,8 +67,8 @@ class DNSController extends ControllerBase {
             "providerSecretNameUserAccount": userAccountProviderSecretName,
             "providerSecretNamespaceUserAccount": userAccountProviderSecretNamespace,
             "providerConfigNameDomainOwnerAccount": ctx.input.domainOwnerProviderConfigName,
-            "providerSecretNameDomainOwnerAccount": ctx.input.domainOwnerProviderSecretName,
-            "providerSecretNamespaceDomainOwnerAccount": ctx.input.domainOwnerProviderSecretNamespace,
+            "providerSecretNameDomainOwnerAccount": secretNameDomainOwnerAccount,
+            "providerSecretNamespaceDomainOwnerAccount": secretNamespaceDomainOwnerAccount,
         };
 
         return args
@@ -95,12 +99,16 @@ class DNSController extends ControllerBase {
      * @param ctx 
      * @param providerSecretName 
      * @param providerSecretNamespace 
+     * @param domainOwnerSecretName 
+     * @param domainOwnerSecretNamespace 
      * @returns 
      */
     public async prepareWorkflow(
         ctx: any,
         providerSecretName: string,
-        providerSecretNamespace: string
+        providerSecretNamespace: string,
+        domainOwnerSecretName: string,
+        domainOwnerSecretNamespace: string,
     ) {
         // Generate a unique name for the workflow
         let uid = new ShortUniqueId({ length: 5 });
@@ -119,7 +127,9 @@ class DNSController extends ControllerBase {
         const args = this.computeArgumentsFile(
             providerSecretNamespace, 
             providerSecretName, 
-            JSON.parse(ctx.input.gcp_credentials).project_id, 
+            JSON.parse(ctx.input.gcp_credentials).project_id,
+            domainOwnerSecretName,
+            domainOwnerSecretNamespace,
             ctx
         );
 
