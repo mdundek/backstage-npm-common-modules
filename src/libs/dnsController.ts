@@ -42,6 +42,7 @@ class DNSController extends ControllerBase {
         secretNameDomainOwnerAccount: string,
         secretNamespaceDomainOwnerAccount: string,
         domainOwnerProviderConfigName: string,
+        rootDomainZoneId: string,
         ctx: any): any {
 
         const systemNormalizedName = BackstageComponentRegistrar.normalizeSystemRef(ctx.input.targetSystem)
@@ -63,7 +64,7 @@ class DNSController extends ControllerBase {
             "cloudDNSRegionUserAccount": ctx.input.userAccountCloudDNSRegion,
             "gcpProjectId": gcpProjectId,
             "route53RegionDomainOwnerAccount": ctx.input.domainOwnerAccountRoute53Region,
-            "rootDomainZoneIdDomainOwnerAccount": ctx.input.rootDomainZoneId,
+            "rootDomainZoneIdDomainOwnerAccount": rootDomainZoneId,
             "providerConfigNameUserAccount": `${systemNormalizedName}-dns-provider-config`,
             "providerSecretNameUserAccount": userAccountProviderSecretName,
             "providerSecretNamespaceUserAccount": userAccountProviderSecretNamespace,
@@ -102,6 +103,8 @@ class DNSController extends ControllerBase {
      * @param providerSecretNamespace 
      * @param domainOwnerSecretName 
      * @param domainOwnerSecretNamespace 
+     * @param domainOwnerProviderConfigName 
+     * @param rootDomainZoneId 
      * @returns 
      */
     public async prepareWorkflow(
@@ -110,7 +113,8 @@ class DNSController extends ControllerBase {
         providerSecretNamespace: string,
         domainOwnerSecretName: string,
         domainOwnerSecretNamespace: string,
-        domainOwnerProviderConfigName: string
+        domainOwnerProviderConfigName: string,
+        rootDomainZoneId: string
     ) {
         // Generate a unique name for the workflow
         let uid = new ShortUniqueId({ length: 5 });
@@ -133,6 +137,7 @@ class DNSController extends ControllerBase {
             domainOwnerSecretName,
             domainOwnerSecretNamespace,
             domainOwnerProviderConfigName,
+            rootDomainZoneId,
             ctx
         );
 
