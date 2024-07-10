@@ -365,7 +365,7 @@ spec:
      * @param minimal 
      * @returns 
      */
-    public static normalizeSystemRef(input: string, minimal: boolean = true): string {
+    public static normalizeSystemRef(input: string, minimal: boolean = false): string {
         let withoutPrefix = input.replace(/^component:/, '');
         withoutPrefix = withoutPrefix.replace(/^system:/, '');
         if(minimal) {
