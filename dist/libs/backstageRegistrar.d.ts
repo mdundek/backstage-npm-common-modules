@@ -127,11 +127,12 @@ export declare class BackstageComponentRegistrar {
      */
     static computeCatalogInfoPath(systemRef: string, recordType: string, name: string): string;
     /**
-     *
+     * normalizeSystemRef
      * @param input
+     * @param minimal
      * @returns
      */
-    static normalizeSystemRef(input: string): string;
+    static normalizeSystemRef(input: string, minimal?: boolean): string;
     /**
      *
      * @param globalInputs

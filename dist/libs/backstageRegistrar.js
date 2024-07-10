@@ -329,17 +329,23 @@ spec:
         return `${this.normalizeSystemRef(systemRef)}/${recordType}/${this.normalizeSystemRef(name)}.yaml`;
     }
     /**
-     *
+     * normalizeSystemRef
      * @param input
+     * @param minimal
      * @returns
      */
-    static normalizeSystemRef(input) {
+    static normalizeSystemRef(input, minimal = true) {
         let withoutPrefix = input.replace(/^component:/, '');
         withoutPrefix = withoutPrefix.replace(/^system:/, '');
-        let result = withoutPrefix.replace(/\//g, '-');
-        result = result.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
-        result = result.replace(/_/g, '-');
-        return result;
+        if (minimal) {
+            withoutPrefix = withoutPrefix.replace(/^default\//, '').toLowerCase();
+        }
+        else {
+            withoutPrefix = withoutPrefix.replace(/\//g, '-');
+            withoutPrefix = withoutPrefix.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+        }
+        withoutPrefix = withoutPrefix.replace(/\//g, '-');
+        return withoutPrefix;
     }
     /**
      *

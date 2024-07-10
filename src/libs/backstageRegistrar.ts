@@ -360,17 +360,22 @@ spec:
     }
 
     /**
-     * 
+     * normalizeSystemRef
      * @param input 
+     * @param minimal 
      * @returns 
      */
-    public static normalizeSystemRef(input: string): string {
+    public static normalizeSystemRef(input: string, minimal: boolean = true): string {
         let withoutPrefix = input.replace(/^component:/, '');
         withoutPrefix = withoutPrefix.replace(/^system:/, '');
-        let result = withoutPrefix.replace(/\//g, '-');
-        result = result.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
-        result = result.replace(/_/g, '-');
-        return result;
+        if(minimal) {
+            withoutPrefix = withoutPrefix.replace(/^default\//, '').toLowerCase();
+        } else {
+            withoutPrefix = withoutPrefix.replace(/\//g, '-');
+            withoutPrefix = withoutPrefix.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+        }
+        withoutPrefix = withoutPrefix.replace(/\//g, '-');
+        return withoutPrefix;
     }
 
     /**
