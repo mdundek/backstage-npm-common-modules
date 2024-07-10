@@ -12,14 +12,6 @@ declare class AxionController extends ControllerBase {
     constructor(k8sHost: string, k8sSaToken: string);
     /**
      *
-     * @param cloudCredentials
-     * @param cloudProvider
-     * @param ociAuthToken
-     * @param vaultTemporaryToken
-     */
-    prepareTemporarySecret(cloudCredentials: string, cloudProvider: string, ociAuthUsername: string, ociAuthToken: string, vaultTemporaryToken?: string): Promise<void>;
-    /**
-     *
      * @param clusterEntity
      * @param dnsEntity
      * @param gcpProjectId

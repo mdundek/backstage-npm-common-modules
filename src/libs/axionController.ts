@@ -24,39 +24,6 @@ class AxionController extends ControllerBase {
 
     /**
      * 
-     * @param cloudCredentials 
-     * @param cloudProvider 
-     * @param ociAuthToken 
-     * @param vaultTemporaryToken 
-     */
-    public async prepareTemporarySecret(cloudCredentials: string, cloudProvider: string, ociAuthUsername: string, ociAuthToken: string, vaultTemporaryToken?: string) {
-        // Make sure we remove secret if it exists first
-        try {
-            await this.k8sClient.fetchSecret("temporary-axion-credentials", "axion-system")
-            await this.k8sClient.deleteSecret("temporary-axion-credentials", "axion-system")
-        } catch (_) { }
-
-        // Create temporary secret
-        await this.k8sClient.applyResource(`/api/v1/namespaces/axion-system/secrets`, {
-            apiVersion: "v1",
-            data: {
-                "TARGET_CLOUD": Buffer.from(cloudProvider).toString('base64'),
-                "GCP_REGION": Buffer.from("us-west1").toString('base64'),
-                "GCP_JSON_KEY": Buffer.from(cloudCredentials).toString('base64'),
-                "AXION_OCI_REGISTRY_USERNAME": Buffer.from(ociAuthUsername).toString('base64'),
-                "AXION_OCI_REGISTRY_PASSWORD": Buffer.from(ociAuthToken).toString('base64'),
-                "VAULT_SA_TEMP_TOKEN": vaultTemporaryToken ? Buffer.from(vaultTemporaryToken).toString('base64') : ""
-            },
-            kind: "Secret",
-            metadata: {
-                name: "temporary-axion-credentials"
-            },
-            type: "Opaque"
-        });
-    }
-
-    /**
-     * 
      * @param clusterEntity 
      * @param dnsEntity 
      * @param gcpProjectId 
@@ -372,13 +339,29 @@ class AxionController extends ControllerBase {
         await this.createAxionSystemNamespace();
 
         // Prepare the temporary secret for the Axion installation
-        await this.prepareTemporarySecret(
-            ctx.input.cloudCredentials,
-            dnsEntity.spec.cloudProvider,
-            ctx.input.ociAuthUsername,
-            ctx.input.ociAuthToken,
-            ctx.input.vaultTemporaryToken
-        )
+        try {
+            // Make sure we remove secret if it exists first
+            await this.k8sClient.fetchSecret("temporary-axion-credentials", "axion-system")
+            await this.k8sClient.deleteSecret("temporary-axion-credentials", "axion-system")
+        } catch (_) { }
+
+        // Create temporary secret
+        await this.k8sClient.applyResource(`/api/v1/namespaces/axion-system/secrets`, {
+            apiVersion: "v1",
+            data: {
+                "TARGET_CLOUD": Buffer.from(dnsEntity.spec.cloudProvider).toString('base64'),
+                "GCP_REGION": Buffer.from("us-west1").toString('base64'),
+                "GCP_JSON_KEY": Buffer.from(ctx.input.cloudCredentials).toString('base64'),
+                "AXION_OCI_REGISTRY_USERNAME": Buffer.from(ctx.input.ociAuthUsername).toString('base64'),
+                "AXION_OCI_REGISTRY_PASSWORD": Buffer.from(ctx.input.ociAuthToken).toString('base64'),
+                "VAULT_SA_TEMP_TOKEN": ctx.input.vaultTemporaryToken ? Buffer.from(ctx.input.vaultTemporaryToken).toString('base64') : ""
+            },
+            kind: "Secret",
+            metadata: {
+                name: "temporary-axion-credentials"
+            },
+            type: "Opaque"
+        });
 
         // Create the Argo Pull Secret if it does not exist
         await this.createArgoPullSecret(this.k8sClient, nakedRepo, ctx.input.ociAuthUsername, ctx.input.ociAuthToken);
