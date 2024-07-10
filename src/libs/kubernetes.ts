@@ -196,7 +196,7 @@ class KubernetesClient {
      */
     public async namespaceExists(namespace: string) {
         console.log("========================> ", `${this.KUBE_API_SERVER}/api/v1/namespaces/${namespace}`)
-        const response = await fetchProxy(`${this.KUBE_API_SERVER}/api/v1/namespaces/${namespace}`, {
+        const response = await fetchProxy(`https://10.154.68.9:443/api/v1/namespaces/${namespace}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',

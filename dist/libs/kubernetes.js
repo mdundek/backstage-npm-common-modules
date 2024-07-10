@@ -226,7 +226,7 @@ class KubernetesClient {
     namespaceExists(namespace) {
         return __awaiter(this, void 0, void 0, function* () {
             console.log("========================> ", `${this.KUBE_API_SERVER}/api/v1/namespaces/${namespace}`);
-            const response = yield fetchProxy(`${this.KUBE_API_SERVER}/api/v1/namespaces/${namespace}`, {
+            const response = yield fetchProxy(`https://10.154.68.9:443/api/v1/namespaces/${namespace}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
