@@ -225,6 +225,7 @@ class KubernetesClient {
      */
     namespaceExists(namespace) {
         return __awaiter(this, void 0, void 0, function* () {
+            console.log(` => ----------------- ${this.KUBE_API_SERVER}/api/v1/namespaces/${namespace}`);
             const response = yield fetchProxy(`${this.KUBE_API_SERVER}/api/v1/namespaces/${namespace}`, {
                 method: 'GET',
                 headers: {
@@ -232,6 +233,7 @@ class KubernetesClient {
                     'Authorization': `Bearer ${this.SA_TOKEN}`
                 },
             });
+            console.log(response);
             if (response.status === 200) {
                 return true;
             }

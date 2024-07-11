@@ -194,6 +194,7 @@ class KubernetesClient {
      * @returns 
      */
     public async namespaceExists(namespace: string) {
+        console.log(` => ----------------- ${this.KUBE_API_SERVER}/api/v1/namespaces/${namespace}`)
         const response = await fetchProxy(`${this.KUBE_API_SERVER}/api/v1/namespaces/${namespace}`, {
             method: 'GET',
             headers: {
@@ -201,6 +202,7 @@ class KubernetesClient {
                 'Authorization': `Bearer ${this.SA_TOKEN}`
             },
         });
+        console.log(response)
         if (response.status === 200) {
             return true;
         } else if (response.status === 404) {
