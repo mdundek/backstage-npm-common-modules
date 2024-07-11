@@ -52,7 +52,10 @@ aws_secret_access_key = ${aws_secret_access_key}`).toString('base64');
             },
             kind: "Secret",
             metadata: {
-                name: secretName
+                name: secretName,
+                annotations: {
+                    "neotek.ea.com/axion-owned": "true"
+                }
             },
             type: "Opaque"
         });
@@ -82,7 +85,10 @@ aws_secret_access_key = ${aws_secret_access_key}`).toString('base64');
             },
             kind: "Secret",
             metadata: {
-                name: secretName
+                name: secretName,
+                annotations: {
+                    "neotek.ea.com/axion-owned": "true"
+                }
             },
             type: "Opaque"
         });
@@ -135,7 +141,10 @@ aws_secret_access_key = ${aws_secret_access_key}`).toString('base64');
                 "kind": "ServiceAccount",
                 "metadata": {
                     "name": "argo-admin",
-                    "namespace": "argo"
+                    "namespace": "argo",
+                    "annotations": {
+                        "neotek.ea.com/axion-owned": "true"
+                    }
                 
                 }
             })
@@ -148,7 +157,10 @@ aws_secret_access_key = ${aws_secret_access_key}`).toString('base64');
                 "apiVersion": "rbac.authorization.k8s.io/v1",
                 "kind": "ClusterRoleBinding",
                 "metadata": {
-                    "name": "argo-admin-binding"
+                    "name": "argo-admin-binding",
+                    "annotations": {
+                        "neotek.ea.com/axion-owned": "true"
+                    }
                 },
                 "roleRef": {
                     "apiGroup": "rbac.authorization.k8s.io",
@@ -177,7 +189,8 @@ aws_secret_access_key = ${aws_secret_access_key}`).toString('base64');
                     "name": "argo-admin",
                     "namespace": "argo",
                     "annotations": {
-                        "kubernetes.io/service-account.name": "argo-admin"
+                        "kubernetes.io/service-account.name": "argo-admin",
+                        "neotek.ea.com/axion-owned": "true"
                     }
                 },
                 "type": "kubernetes.io/service-account-token"
@@ -214,6 +227,9 @@ aws_secret_access_key = ${aws_secret_access_key}`).toString('base64');
             "metadata": {
                 "name": "argo-sa-regcreds",
                 "namespace": "argo",
+                "annotations": {
+                    "neotek.ea.com/axion-owned": "true"
+                }
             },
             "type": "kubernetes.io/dockerconfigjson"
         })
@@ -480,6 +496,9 @@ fi`);
                 metadata: {
                     name: 'script-config-map',
                     namespace: 'argo',
+                    annotations: {
+                        "neotek.ea.com/axion-owned": "true"
+                    }
                 },
                 data: scripts,
             };

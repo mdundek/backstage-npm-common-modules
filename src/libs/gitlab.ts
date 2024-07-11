@@ -42,7 +42,7 @@ export const gitlab = {
         } else if (response.status === 404) {
             method = 'POST';
         } else {
-            const error = await response.json();
+            const error:any = await response.json();
             throw new Error(`Failed to check file: ${error.message}`);
         }
 
@@ -81,7 +81,7 @@ export const gitlab = {
         if (response.ok) {
             return response.json();
         } else {
-            const error = await response.json();
+            const error:any = await response.json();
             throw new Error(`Failed to check file: ${error.message}`);
         }
     },
@@ -113,7 +113,7 @@ export const gitlab = {
             throw new Error('Failed to fetch folder content');
         }
 
-        const files = await response.json();
+        const files:any = await response.json();
 
         return files.filter((file: any) => file.type === 'blob').map((file: any) => file.path); // Filter to get only files, not directories
     },
@@ -141,7 +141,7 @@ export const gitlab = {
             throw new Error(`Could not fetch the groups: ${await response.text()}`);
         }
 
-        const groups = await response.json();
+        const groups:any = await response.json();
         const group = groups[0];
 
         if (!group) {
@@ -173,7 +173,7 @@ export const gitlab = {
             throw new Error(`Could not fetch the groups: ${await response.text()}`);
         }
 
-        const group = await response.json();
+        const group:any = await response.json();
         if (!group) {
             throw new Error('Group not found');
         }
@@ -285,7 +285,7 @@ export const gitlab = {
             throw new Error(`Could not fetch the groups: ${await response.text()}`);
         }
 
-        const allProjects = await response.json();
+        const allProjects:any = await response.json();
         const targetProjectBlock = allProjects.find((project: { path_with_namespace: string; }) => project.path_with_namespace == searchString || project.path_with_namespace.endsWith("/" + searchString));
         if(targetProjectBlock) {
             response = await fetch(`https://gitlab.ea.com/api/v4/projects/${targetProjectBlock.id}`, {

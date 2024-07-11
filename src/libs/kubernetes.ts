@@ -221,8 +221,7 @@ class KubernetesClient {
             metadata: {
               name: namespace,
             },
-        })
-        console.log(response)
+        });
         // Check if the response is ok (status code 200-299)
         if (!response.ok) {
             throw new Error(`Failed to create namespace, status: ${response.statusText}`);

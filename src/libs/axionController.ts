@@ -111,7 +111,10 @@ class AxionController extends ControllerBase {
                 "apiVersion": "v1",
                 "kind": "Namespace",
                 "metadata": {
-                  "name": "axion-system"
+                    "name": "axion-system",
+                    "annotations": {
+                        "neotek.ea.com/axion-owned": "true"
+                    }
                 }
             })
         }
